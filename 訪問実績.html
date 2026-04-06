@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="訪問記録">
+<title>訪問記録</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--g:#2E7D32;--gl:#E8F5E9;--red:#FF6B6B;--tx:#1A1A2E;--sub:#6B7280;--bd:#E5E7EB;--bg:#F5F7FA;}
+body{font-family:'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);color:var(--tx);max-width:430px;margin:0 auto;min-height:100vh;}
+.pg{display:none;flex-direction:column;min-height:100vh;}
+.pg.on{display:flex;}
+.hd{background:var(--g);color:#fff;padding:16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.hd-ttl{flex:1;font-size:18px;font-weight:700;}
+.hd-btn{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:22px;width:36px;height:36px;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+.bk-btn{background:transparent;border:none;color:#fff;font-size:30px;cursor:pointer;padding:0 4px;font-family:inherit;line-height:1;}
+.sb{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--bd);}
+.sb input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;}
+.ab{display:none;gap:8px;padding:12px 16px;background:var(--gl);border-bottom:1px solid var(--bd);}
+.ab input{flex:1;border:1.5px solid var(--g);border-radius:8px;padding:8px 12px;font-size:16px;outline:none;font-family:inherit;}
+.btn-ok{background:var(--g);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-no{background:transparent;color:var(--sub);border:1.5px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;font-family:inherit;}
+.lst{padding:8px 16px 80px;}
+.empty{text-align:center;color:var(--sub);margin-top:80px;font-size:15px;padding:16px;}
+.p-row{display:flex;align-items:center;margin-bottom:10px;gap:8px;}
+.p-btn{flex:1;display:flex;align-items:center;gap:12px;background:#fff;border:none;border-radius:12px;padding:14px 16px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.08);text-align:left;font-family:inherit;}
+.av{width:40px;height:40px;border-radius:20px;background:var(--g);color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.p-nm{flex:1;font-size:16px;font-weight:600;color:var(--tx);}
+.chv{font-size:22px;color:var(--sub);}
+.d-btn{background:transparent;border:none;font-size:18px;cursor:pointer;padding:8px;color:var(--sub);}
+.cpb{display:none;gap:8px;padding:10px 16px;background:var(--gl);border-bottom:1px solid var(--bd);align-items:center;}
+.cpb select{flex:1;border:1.5px solid var(--g);border-radius:8px;padding:7px 10px;font-size:14px;background:#fff;color:var(--tx);outline:none;font-family:inherit;}
+.btn-cp{background:var(--g);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.m-lbl{font-size:12px;font-weight:700;color:var(--sub);padding:12px 0 6px;}
+.r-card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);position:relative;}
+.r-dt{font-size:16px;font-weight:700;color:var(--g);margin-bottom:8px;}
+.r-vt{font-size:13px;color:var(--tx);line-height:1.9;}
+.r-mo{font-size:13px;color:var(--tx);line-height:1.6;margin-top:4px;padding-top:6px;border-top:1px solid var(--bd);}
+.r-del{position:absolute;top:10px;right:12px;background:transparent;border:none;color:#D1D5DB;font-size:11px;cursor:pointer;padding:4px;font-family:inherit;}
+.frm{padding:20px 16px;display:flex;flex-direction:column;gap:6px;}
+.f-lbl{font-size:13px;font-weight:700;color:var(--sub);margin-top:10px;}
+.f-in{border:1.5px solid var(--bd);border-radius:10px;padding:10px 14px;font-size:15px;background:#fff;outline:none;color:var(--tx);font-family:inherit;width:100%;}
+.vb{background:#fff;border:1.5px solid var(--bd);border-radius:10px;overflow:hidden;}
+.vr{display:flex;align-items:center;border-bottom:1px solid var(--bd);padding:0 14px;}
+.vr:last-child{border-bottom:none;}
+.vl{font-size:15px;font-weight:700;color:var(--g);width:70px;flex-shrink:0;}
+.vr input{flex:1;border:none;outline:none;font-size:16px;padding:12px 0;background:transparent;color:var(--tx);font-family:inherit;}
+textarea.f-in{resize:none;line-height:1.7;}
+.btn-sv{background:var(--g);color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:16px;width:100%;font-family:inherit;box-shadow:0 4px 12px rgba(46,125,50,.35);}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:200;}
+.ov.on{display:flex;}
+.dlg{background:#fff;border-radius:16px;padding:24px 20px 20px;width:80%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.dlg p{font-size:16px;font-weight:600;text-align:center;margin-bottom:20px;line-height:1.6;}
+.dlg-bts{display:flex;gap:10px;}
+.btn-dl-no{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--bd);background:#fff;color:var(--sub);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-dl-ok{flex:1;padding:12px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;white-space:nowrap;display:none;}
+</style>
+</head>
+<body>
+
+<!-- 画面1: 利用者一覧 -->
+<div id="pg1" class="pg on">
+  <div class="hd">
+    <span class="hd-ttl">訪問記録</span>
+    <button class="hd-btn" id="btnShowAb">＋</button>
+  </div>
+  <div class="sb">
+    <span>🔍</span>
+    <input id="srch" placeholder="利用者を検索" type="search">
+  </div>
+  <div id="ab" class="ab">
+    <input id="newName" placeholder="利用者名を入力" type="text">
+    <button class="btn-ok" id="btnAddOk">追加</button>
+    <button class="btn-no" id="btnAddNo">✕</button>
+  </div>
+  <div class="lst" id="pList"></div>
+</div>
+
+<!-- 画面2: 記録一覧 -->
+<div id="pg2" class="pg">
+  <div class="hd">
+    <button class="bk-btn" id="btnBack1">‹</button>
+    <span class="hd-ttl" id="pg2ttl"></span>
+    <button class="hd-btn" id="btnGoAdd">＋</button>
+  </div>
+  <div id="cpb" class="cpb">
+    <select id="mSel"></select>
+    <button class="btn-cp" id="btnCopy">📋 まとめてコピー</button>
+  </div>
+  <div class="lst" id="rList"></div>
+</div>
+
+<!-- 画面3: 記録追加 -->
+<div id="pg3" class="pg">
+  <div class="hd">
+    <button class="bk-btn" id="btnBack2">‹</button>
+    <span class="hd-ttl" id="pg3ttl"></span>
+  </div>
+  <div class="frm">
+    <label class="f-lbl">日付</label>
+    <input class="f-in" type="date" id="iDate">
+    <label class="f-lbl">バイタル</label>
+    <div class="vb">
+      <div class="vr"><span class="vl">SBP：</span><input type="tel" id="iSbp"></div>
+      <div class="vr"><span class="vl">DBP：</span><input type="tel" id="iDbp"></div>
+      <div class="vr"><span class="vl">SpO2：</span><input type="tel" id="iSpo2"></div>
+      <div class="vr"><span class="vl">PR：</span><input type="tel" id="iPr"></div>
+    </div>
+    <label class="f-lbl">様子</label>
+    <textarea class="f-in" id="iMemo" rows="5" placeholder="訪問時の様子・特記事項"></textarea>
+    <button class="btn-sv" id="btnSave">保存</button>
+  </div>
+</div>
+
+<!-- 確認ダイアログ -->
+<div id="ov" class="ov">
+  <div class="dlg">
+    <p id="dlgMsg"></p>
+    <div class="dlg-bts">
+      <button class="btn-dl-no" id="btnDlNo">キャンセル</button>
+      <button class="btn-dl-ok" id="btnDlOk">削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var curP = null;
+var dlgCb = null;
+
+// localStorage フォールバック（iOS Safari プライベートブラウズ等で失敗する場合に対応）
+var _mem = {};
+function lsGet(k) { try { return localStorage.getItem(k); } catch(e) { return _mem[k]||null; } }
+function lsSet(k,v) { try { localStorage.setItem(k,v); _mem[k]=v; } catch(e) { _mem[k]=v; } }
+function lsRm(k) { try { localStorage.removeItem(k); } catch(e) {} delete _mem[k]; }
+
+// データ
+function getPs() { try { return JSON.parse(lsGet('ps')||'[]'); } catch(e){ return []; } }
+function setPs(v) { lsSet('ps', JSON.stringify(v)); }
+function getRs(id) { try { return JSON.parse(lsGet('rs_'+id)||'[]'); } catch(e){ return []; } }
+function setRs(id,v) { lsSet('rs_'+id, JSON.stringify(v)); }
+
+// ユーティリティ
+function g(id) { return document.getElementById(id); }
+function today() {
+  var d=new Date();
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function fmtD(s) { var d=new Date(s); return (d.getMonth()+1)+'/'+(d.getDate()); }
+function mLbl(s) { var d=new Date(s); return d.getFullYear()+'年'+(d.getMonth()+1)+'月'; }
+function toast(msg) {
+  var t=g('toast'); t.textContent=msg; t.style.display='block';
+  setTimeout(function(){ t.style.display='none'; }, 2500);
+}
+
+// 画面切替
+function go(n) {
+  ['pg1','pg2','pg3'].forEach(function(id){ g(id).className='pg'; });
+  g('pg'+n).className='pg on';
+  window.scrollTo(0,0);
+  if(n===1) drawPs();
+  if(n===2) drawRs();
+  if(n===3) initForm();
+}
+
+// 利用者一覧描画
+function drawPs() {
+  var q=g('srch').value;
+  var all=getPs();
+  var ps=all.filter(function(p){ return p.n.indexOf(q)!==-1; });
+  var el=g('pList');
+  el.innerHTML='';
+  if(all.length===0){ el.innerHTML='<div class="empty">＋ボタンで利用者を追加</div>'; return; }
+  if(ps.length===0){ el.innerHTML='<div class="empty">「'+q+'」に一致する利用者はいません</div>'; return; }
+  ps.forEach(function(p){
+    var row=document.createElement('div'); row.className='p-row';
+    var btn=document.createElement('button'); btn.className='p-btn';
+    btn.innerHTML='<span class="av">'+p.n[0]+'</span><span class="p-nm">'+p.n+'</span><span class="chv">›</span>';
+    btn.setAttribute('data-id', p.id);
+    var del=document.createElement('button'); del.className='d-btn'; del.textContent='🗑';
+    del.setAttribute('data-id', p.id);
+    row.appendChild(btn); row.appendChild(del);
+    el.appendChild(row);
+  });
+}
+
+// 利用者追加
+function addP() {
+  var nm=g('newName').value.trim(); if(!nm) return;
+  var ps=getPs(); ps.push({id:''+Date.now(), n:nm}); setPs(ps);
+  g('ab').style.display='none'; g('newName').value=''; drawPs();
+}
+
+// 記録一覧描画
+function drawRs() {
+  if(!curP) return;
+  var rs=getRs(curP.id);
+  var el=g('rList'); el.innerHTML='';
+  var groups={};
+  rs.forEach(function(r){ var m=mLbl(r.d); if(!groups[m]) groups[m]=[]; groups[m].push(r); });
+  var months=Object.keys(groups);
+  var cpb=g('cpb'), ms=g('mSel');
+  if(months.length>0){
+    cpb.style.display='flex'; ms.innerHTML='';
+    months.forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; ms.appendChild(o); });
+  } else { cpb.style.display='none'; }
+  if(rs.length===0){ el.innerHTML='<div class="empty">＋ボタンで記録を追加</div>'; return; }
+  months.forEach(function(m){
+    var lbl=document.createElement('div'); lbl.className='m-lbl'; lbl.textContent=m; el.appendChild(lbl);
+    groups[m].forEach(function(r){
+      var c=document.createElement('div'); c.className='r-card';
+      var dt=document.createElement('div'); dt.className='r-dt'; dt.textContent=fmtD(r.d);
+      var vt=document.createElement('div'); vt.className='r-vt'; vt.innerHTML=(r.v||'').replace(/\n/g,'<br>');
+      var db=document.createElement('button'); db.className='r-del'; db.textContent='削除'; db.setAttribute('data-rid', r.id);
+      c.appendChild(dt); c.appendChild(vt);
+      if(r.m){ var mo=document.createElement('div'); mo.className='r-mo'; mo.textContent='様子：'+r.m; c.appendChild(mo); }
+      c.appendChild(db); el.appendChild(c);
+    });
+  });
+}
+
+// コピー
+function doCopy() {
+  var month=g('mSel').value;
+  var rs=getRs(curP.id);
+  var grouped={};
+  rs.forEach(function(r){ var m=mLbl(r.d); if(!grouped[m]) grouped[m]=[]; grouped[m].push(r); });
+  var recs=(grouped[month]||[]).slice().sort(function(a,b){ return a.d.localeCompare(b.d); });
+  var txt='【'+curP.n+'】'+month+'\n\n'+recs.map(function(r){
+    return fmtD(r.d)+'\n'+(r.v||'')+'\n様子：'+(r.m||'―');
+  }).join('\n\n');
+  if(navigator.clipboard && location.protocol !== 'file:'){
+    navigator.clipboard.writeText(txt).then(function(){ toast('コピーしました'); });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); toast('コピーしました'); }
+    catch(e) { toast('コピーできませんでした'); }
+    document.body.removeChild(ta);
+  }
+}
+
+// フォーム初期化
+function initForm() {
+  g('iDate').value=today();
+  g('iSbp').value=''; g('iDbp').value=''; g('iSpo2').value=''; g('iPr').value=''; g('iMemo').value='';
+}
+
+// 保存
+function saveR() {
+  if(!curP) return;
+  var r={id:''+Date.now(), d:g('iDate').value,
+    v:'SBP：'+g('iSbp').value+'\nDBP：'+g('iDbp').value+'\nSpO2：'+g('iSpo2').value+'\nPR：'+g('iPr').value,
+    m:g('iMemo').value};
+  setRs(curP.id, [r].concat(getRs(curP.id)));
+  go(2); toast('保存しました');
+}
+
+// ダイアログ
+function showDlg(msg, cb) { g('dlgMsg').textContent=msg; g('ov').className='ov on'; dlgCb=cb; }
+function closeDlg() { g('ov').className='ov'; dlgCb=null; }
+
+// イベント：利用者一覧
+g('btnShowAb').addEventListener('click', function(){ g('ab').style.display='flex'; setTimeout(function(){ g('newName').focus(); }, 50); });
+g('btnAddOk').addEventListener('click', addP);
+g('btnAddNo').addEventListener('click', function(){ g('ab').style.display='none'; g('newName').value=''; });
+g('newName').addEventListener('keydown', function(e){ if(e.key==='Enter') addP(); });
+g('srch').addEventListener('input', function(){ drawPs(); });
+
+// 利用者リストのクリック（イベント委譲）
+g('pList').addEventListener('click', function(e){
+  var pb=e.target.closest('.p-btn');
+  var db=e.target.closest('.d-btn');
+  if(pb){
+    var id=pb.getAttribute('data-id');
+    var ps=getPs(); ps.forEach(function(p){ if(p.id===id) curP=p; });
+    g('pg2ttl').textContent=curP.n;
+    g('pg3ttl').textContent=curP.n+'　記録追加';
+    go(2);
+  }
+  if(db){
+    var did=db.getAttribute('data-id');
+    showDlg('この利用者を削除しますか？', function(){
+      setPs(getPs().filter(function(p){ return p.id!==did; }));
+      lsRm('rs_'+did);
+      drawPs();
+    });
+  }
+});
+
+// イベント：記録一覧
+g('btnBack1').addEventListener('click', function(){ go(1); });
+g('btnGoAdd').addEventListener('click', function(){ go(3); });
+g('btnCopy').addEventListener('click', doCopy);
+
+// 記録リストのクリック（イベント委譲）
+g('rList').addEventListener('click', function(e){
+  var db=e.target.closest('.r-del');
+  if(db){
+    var rid=db.getAttribute('data-rid');
+    showDlg('この記録を削除しますか？', function(){
+      setRs(curP.id, getRs(curP.id).filter(function(r){ return r.id!==rid; }));
+      drawRs();
+    });
+  }
+});
+
+// イベント：記録追加
+g('btnBack2').addEventListener('click', function(){ go(2); });
+g('btnSave').addEventListener('click', saveR);
+
+// イベント：ダイアログ
+g('btnDlNo').addEventListener('click', closeDlg);
+g('btnDlOk').addEventListener('click', function(){ if(dlgCb) dlgCb(); closeDlg(); });
+
+// 初期表示
+drawPs();
+</script>
+</body>
+</html>
