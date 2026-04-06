@@ -88,8 +88,7 @@ textarea.f-in{resize:none;line-height:1.7;}
   </div>
   <div id="cpb" class="cpb">
     <select id="mSel"></select>
-    <button class="btn-cp" id="btnCopy">📋 まとめてコピー</button>
-    <button class="btn-cp" id="btnExport">📄 報告書用出力</button>
+<button class="btn-cp" id="btnExport">📄 報告書用出力</button>
   </div>
   <div class="lst" id="rList"></div>
 </div>
@@ -224,28 +223,6 @@ function drawRs() {
   });
 }
 
-// コピー
-function doCopy() {
-  var month=g('mSel').value;
-  var rs=getRs(curP.id);
-  var grouped={};
-  rs.forEach(function(r){ var m=mLbl(r.d); if(!grouped[m]) grouped[m]=[]; grouped[m].push(r); });
-  var recs=(grouped[month]||[]).slice().sort(function(a,b){ return a.d.localeCompare(b.d); });
-  var txt='【'+curP.n+'】'+month+'\n\n'+recs.map(function(r){
-    return fmtD(r.d)+'\n'+(r.v||'')+'\n様子：'+(r.m||'―');
-  }).join('\n\n');
-  if(navigator.clipboard && location.protocol !== 'file:'){
-    navigator.clipboard.writeText(txt).then(function(){ toast('コピーしました'); });
-  } else {
-    var ta=document.createElement('textarea');
-    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try { document.execCommand('copy'); toast('コピーしました'); }
-    catch(e) { toast('コピーできませんでした'); }
-    document.body.removeChild(ta);
-  }
-}
-
 // フォーム初期化
 function initForm() {
   g('iDate').value=today();
@@ -324,7 +301,6 @@ function doExport() {
 // イベント：記録一覧
 g('btnBack1').addEventListener('click', function(){ go(1); });
 g('btnGoAdd').addEventListener('click', function(){ go(3); });
-g('btnCopy').addEventListener('click', doCopy);
 g('btnExport').addEventListener('click', doExport);
 
 // 記録リストのクリック（イベント委譲）
