@@ -40,8 +40,10 @@ body{font-family:'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);col
 .r-vt{font-size:13px;color:var(--tx);line-height:1.9;}
 .r-mo{font-size:13px;color:var(--tx);line-height:1.6;margin-top:4px;padding-top:6px;border-top:1px solid var(--bd);}
 .r-acts{position:absolute;top:10px;right:8px;display:flex;gap:2px;}
-.r-edit{background:transparent;border:none;color:#9CA3AF;font-size:11px;cursor:pointer;padding:4px;font-family:inherit;}
-.r-del{background:transparent;border:none;color:#D1D5DB;font-size:11px;cursor:pointer;padding:4px;font-family:inherit;}
+.r-edit{background:transparent;border:none;color:#2563EB;font-size:14px;font-weight:700;cursor:pointer;padding:4px;font-family:inherit;}
+.r-del{background:transparent;border:none;color:#EF4444;font-size:14px;font-weight:700;cursor:pointer;padding:4px;font-family:inherit;}
+.memo-wrap{position:relative;}
+.btn-memo-cp{position:absolute;top:8px;right:8px;background:var(--g);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.85;}
 .frm{padding:20px 16px;display:flex;flex-direction:column;gap:6px;}
 .f-lbl{font-size:13px;font-weight:700;color:var(--sub);margin-top:10px;}
 .f-in{border:1.5px solid var(--bd);border-radius:10px;padding:10px 14px;font-size:15px;background:#fff;outline:none;color:var(--tx);font-family:inherit;width:100%;}
@@ -116,7 +118,10 @@ textarea.f-in{resize:none;line-height:1.7;}
       <div class="vr"><span class="vl">PR：</span><input type="tel" id="iPr"></div>
     </div>
     <label class="f-lbl">様子</label>
-    <textarea class="f-in" id="iMemo" rows="5" placeholder="訪問時の様子・特記事項"></textarea>
+    <div class="memo-wrap">
+      <textarea class="f-in" id="iMemo" rows="5" placeholder="訪問時の様子・特記事項"></textarea>
+      <button class="btn-memo-cp" id="btnMemoCp" type="button">コピー</button>
+    </div>
     <button class="btn-sv" id="btnSave">保存</button>
   </div>
 </div>
@@ -401,6 +406,20 @@ g('rList').addEventListener('click', function(e){
 // イベント：記録追加／編集
 g('btnBack2').addEventListener('click', function(){ editId=null; go(2); });
 g('btnSave').addEventListener('click', saveR);
+g('btnMemoCp').addEventListener('click', function(){
+  var txt = g('iMemo').value;
+  if(!txt){ toast('様子が入力されていません'); return; }
+  if(navigator.clipboard && location.protocol !== 'file:'){
+    navigator.clipboard.writeText(txt).then(function(){ toast('様子をコピーしました'); });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); toast('様子をコピーしました'); }
+    catch(e) { toast('コピーできませんでした'); }
+    document.body.removeChild(ta);
+  }
+});
 
 // イベント：ダイアログ
 g('btnDlNo').addEventListener('click', closeDlg);
