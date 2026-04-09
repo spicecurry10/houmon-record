@@ -76,7 +76,9 @@ textarea.f-in{resize:none;line-height:1.7;}
 .day-rec{padding:12px 16px;}
 .day-vt{font-size:13px;color:var(--tx);line-height:1.9;}
 .day-mo{font-size:13px;color:var(--tx);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);}
-.day-count-bar{padding:8px 16px 4px;font-size:13px;font-weight:700;color:var(--bl);background:var(--bll);border-bottom:1px solid var(--bd);}
+.day-count-bar{padding:10px 16px;font-size:13px;font-weight:700;color:var(--bl);background:var(--bll);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.day-count-txt{flex:1;}
+.btn-day-cp{background:var(--bl);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
 .p-badge{background:var(--g);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;margin-right:4px;white-space:nowrap;}
 .p-btn.done{background:var(--gl);}
 .cpb input[type=month]{flex:1;min-width:140px;border:1.5px solid var(--g);border-radius:8px;padding:7px 10px;font-size:14px;background:#fff;color:var(--tx);outline:none;font-family:inherit;}
@@ -84,11 +86,6 @@ textarea.f-in{resize:none;line-height:1.7;}
 .dlg-menu button{background:#fff;border:1.5px solid var(--g);color:var(--g);font-size:15px;font-weight:700;padding:14px;border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px;}
 .dlg-menu button:hover{background:var(--gl);}
 .dlg-menu .ic{font-size:20px;}
-.bulk-in{border:1.5px dashed var(--g);border-radius:10px;padding:10px 14px;font-size:15px;background:var(--gl);outline:none;color:var(--tx);font-family:inherit;width:100%;margin-bottom:8px;}
-.bulk-in::placeholder{color:#7a9c7d;font-size:13px;}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
-.chip{background:var(--gl);border:1.5px solid var(--g);color:var(--g);font-size:13px;font-weight:600;padding:6px 12px;border-radius:16px;cursor:pointer;font-family:inherit;}
-.chip:active{background:var(--g);color:#fff;}
 </style>
 </head>
 <body>
@@ -138,7 +135,6 @@ textarea.f-in{resize:none;line-height:1.7;}
     <label class="f-lbl">日付</label>
     <input class="f-in" type="date" id="iDate">
     <label class="f-lbl">バイタル</label>
-    <input type="text" class="bulk-in" id="iBulk" inputmode="text" placeholder="一括入力例：120/80 98 72（SBP DBP SpO2 PR）">
     <div class="vb">
       <div class="vr"><span class="vl">SBP：</span><input type="tel" id="iSbp"></div>
       <div class="vr"><span class="vl">DBP：</span><input type="tel" id="iDbp"></div>
@@ -146,7 +142,6 @@ textarea.f-in{resize:none;line-height:1.7;}
       <div class="vr"><span class="vl">PR：</span><input type="tel" id="iPr"></div>
     </div>
     <label class="f-lbl">様子</label>
-    <div class="chips" id="chips"></div>
     <textarea class="f-in" id="iMemo" rows="5" placeholder="訪問時の様子・特記事項"></textarea>
     <button class="btn-sv" id="btnSave">保存</button>
   </div>
@@ -327,63 +322,8 @@ function drawRs() {
   });
 }
 
-// バイタル一括入力パース
-function parseBulk() {
-  var v = g('iBulk').value;
-  if(!v) return;
-  // 全角数字→半角
-  v = v.replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); });
-  var nums = v.match(/\d+/g);
-  if(!nums) return;
-  if(nums[0]!==undefined) g('iSbp').value  = nums[0];
-  if(nums[1]!==undefined) g('iDbp').value  = nums[1];
-  if(nums[2]!==undefined) g('iSpo2').value = nums[2];
-  if(nums[3]!==undefined) g('iPr').value   = nums[3];
-}
-
-// 頻出フレーズ抽出（全利用者の様子から）
-function getFreqPhrases() {
-  var counts = {};
-  var ps = getPs();
-  ps.forEach(function(p){
-    var rs = getRs(p.id);
-    rs.forEach(function(r){
-      if(!r.m) return;
-      var parts = r.m.split(/[。\n、]/);
-      parts.forEach(function(s){
-        s = s.trim();
-        if(s.length >= 2 && s.length <= 20) {
-          counts[s] = (counts[s]||0) + 1;
-        }
-      });
-    });
-  });
-  var arr = Object.keys(counts).map(function(k){ return {t:k, c:counts[k]}; });
-  arr.sort(function(a,b){ return b.c - a.c; });
-  return arr.slice(0, 8);
-}
-
-// チップ描画
-function drawChips() {
-  var el = g('chips');
-  el.innerHTML = '';
-  var ph = getFreqPhrases();
-  if(ph.length === 0) { el.style.display='none'; return; }
-  el.style.display='flex';
-  ph.forEach(function(p){
-    var c = document.createElement('button');
-    c.type = 'button';
-    c.className = 'chip';
-    c.textContent = p.t;
-    c.setAttribute('data-txt', p.t);
-    el.appendChild(c);
-  });
-}
-
 // フォーム初期化（編集時はレコードを渡す）
 function initForm(r) {
-  g('iBulk').value = '';
-  drawChips();
   if(r) {
     editId = r.id;
     g('pg3ttl').textContent = curP.n + '　記録編集';
@@ -460,6 +400,7 @@ function showDlg(msg, cb) { g('dlgMsg').textContent=msg; g('ov').className='ov o
 function closeDlg() { g('ov').className='ov'; dlgCb=null; }
 
 // 日別実施一覧描画
+var dayFound = [];
 function drawDay() {
   var dt = g('dayDate').value;
   var el = g('dayList');
@@ -474,16 +415,18 @@ function drawDay() {
       if(r.d === dt) found.push({p:p, r:r});
     });
   });
-  found.sort(function(a,b){ return a.p.n.localeCompare(b.p.n,'ja'); });
+  // 作成時間順（r.id＝Date.now()）で昇順ソート：最初に訪問した人が上
+  found.sort(function(a,b){ return (a.r.id||'').localeCompare(b.r.id||''); });
+  dayFound = found;
   if(found.length === 0) {
     cntEl.style.display='none';
     var d=new Date(dt); var lbl=(d.getMonth()+1)+'月'+d.getDate()+'日';
     el.innerHTML='<div class="day-empty">'+lbl+'の記録はありません</div>';
     return;
   }
-  cntEl.style.display='block';
+  cntEl.style.display='flex';
   var d2=new Date(dt); var lbl2=(d2.getMonth()+1)+'月'+d2.getDate()+'日';
-  cntEl.textContent = lbl2 + '　訪問：'+found.length+'件';
+  cntEl.innerHTML = '<span class="day-count-txt">'+lbl2+'　訪問：'+found.length+'件</span><button class="btn-day-cp" id="btnDayCopy">📋 様子一括コピー</button>';
   found.forEach(function(item) {
     var card = document.createElement('div'); card.className='day-user-card';
     var hd = document.createElement('div'); hd.className='day-user-hd';
@@ -606,17 +549,6 @@ g('rList').addEventListener('click', function(e){
 // イベント：記録追加／編集
 g('btnBack2').addEventListener('click', function(){ editId=null; go(2); });
 g('btnSave').addEventListener('click', saveR);
-g('iBulk').addEventListener('input', parseBulk);
-g('chips').addEventListener('click', function(e){
-  var c = e.target.closest('.chip');
-  if(!c) return;
-  var txt = c.getAttribute('data-txt');
-  var ta = g('iMemo');
-  var cur = ta.value;
-  if(cur && !/[。\n]$/.test(cur)) cur += '。';
-  ta.value = cur + txt + '。';
-  ta.focus();
-});
 
 // イベント：ダイアログ
 g('btnDlNo').addEventListener('click', closeDlg);
@@ -686,6 +618,27 @@ g('btnGoDay').addEventListener('click', function(){
 g('btnBack4').addEventListener('click', function(){ go(1); });
 g('btnDayToday').addEventListener('click', function(){ g('dayDate').value=today(); drawDay(); });
 g('dayDate').addEventListener('change', function(){ drawDay(); });
+g('dayCount').addEventListener('click', function(e){
+  if(!e.target.closest('#btnDayCopy')) return;
+  if(dayFound.length === 0) return;
+  var dt = g('dayDate').value;
+  var d = new Date(dt); var lbl = (d.getMonth()+1)+'月'+d.getDate()+'日';
+  var txt = '【'+lbl+'の様子】\n\n';
+  dayFound.forEach(function(item){
+    txt += '■ '+item.p.n+'\n';
+    txt += (item.r.m || '記録なし')+'\n\n';
+  });
+  if(navigator.clipboard && location.protocol !== 'file:'){
+    navigator.clipboard.writeText(txt).then(function(){ toast('様子を一括コピーしました'); });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); toast('様子を一括コピーしました'); }
+    catch(e3) { toast('コピーできませんでした'); }
+    document.body.removeChild(ta);
+  }
+});
 
 // 初期表示
 drawPs();
