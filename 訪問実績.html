@@ -43,7 +43,8 @@ body{font-family:'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);col
 .r-cp{background:#E8F5E9;border:2px solid var(--g);color:var(--g);font-size:13px;font-weight:700;cursor:pointer;padding:6px 12px;border-radius:8px;font-family:inherit;white-space:nowrap;flex-shrink:0;}
 .r-acts{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);}
 .r-edit{background:#EFF6FF;border:2px solid #2563EB;color:#2563EB;font-size:15px;font-weight:700;cursor:pointer;padding:10px 0;border-radius:10px;font-family:inherit;flex:1;}
-.r-del{background:#FEF2F2;border:2px solid #EF4444;color:#EF4444;font-size:15px;font-weight:700;cursor:pointer;padding:10px 0;border-radius:10px;font-family:inherit;flex:1;}.frm{padding:20px 16px;display:flex;flex-direction:column;gap:6px;}
+.r-del{background:#FEF2F2;border:2px solid #EF4444;color:#EF4444;font-size:15px;font-weight:700;cursor:pointer;padding:10px 0;border-radius:10px;font-family:inherit;flex:1;}
+.r-dap{background:#FFF8E1;border:2px solid #F9A825;color:#F9A825;font-size:15px;font-weight:700;cursor:pointer;padding:10px 0;border-radius:10px;font-family:inherit;flex:1;}.frm{padding:20px 16px;display:flex;flex-direction:column;gap:6px;}
 .f-lbl{font-size:13px;font-weight:700;color:var(--sub);margin-top:10px;}
 .f-in{border:1.5px solid var(--bd);border-radius:10px;padding:10px 14px;font-size:15px;background:#fff;outline:none;color:var(--tx);font-family:inherit;width:100%;}
 .vb{background:#fff;border:1.5px solid var(--bd);border-radius:10px;overflow:hidden;}
@@ -316,8 +317,9 @@ function drawRs() {
       }
       var acts=document.createElement('div'); acts.className='r-acts';
       var eb=document.createElement('button'); eb.className='r-edit'; eb.textContent='編集'; eb.setAttribute('data-rid', r.id);
+      var dapb=document.createElement('button'); dapb.className='r-dap'; dapb.textContent='DAP変換'; dapb.setAttribute('data-rid', r.id);
       var db=document.createElement('button'); db.className='r-del'; db.textContent='削除'; db.setAttribute('data-rid', r.id);
-      acts.appendChild(eb); acts.appendChild(db);
+      acts.appendChild(eb); acts.appendChild(dapb); acts.appendChild(db);
       c.appendChild(acts); el.appendChild(c);
     });
   });
@@ -474,6 +476,36 @@ g('pList').addEventListener('click', function(e){
   }
 });
 
+// DAP変換コピー
+function copyDap(name, r) {
+  var txt = '以下のキーワードから訪問リハビリの経過記録を作成してください。\n\n';
+  txt += '【ルール】\n';
+  txt += '- DAP（Data→Assessment→Plan）の構造で解釈すること\n';
+  txt += '- ただしD/A/Pのラベルはつけず、一つの自然な文章として出力すること\n';
+  txt += '- 観察事実→臨床的解釈→今後の方針、の順に流れるように書くこと\n';
+  txt += '- 1回の記録は3〜5文程度にまとめること\n';
+  txt += '- 患者の発言は「」で引用すること\n\n';
+  txt += '【利用者】' + name + '\n';
+  txt += '【日付】' + r.d + '\n';
+  txt += '【バイタル】\n' + (r.v||'') + '\n';
+  txt += '【様子・キーワード】\n' + (r.m||'') + '\n';
+  clipCopy(txt, 'DAP変換プロンプトをコピーしました');
+}
+
+// 汎用クリップボードコピー
+function clipCopy(txt, msg) {
+  if(navigator.clipboard && location.protocol !== 'file:'){
+    navigator.clipboard.writeText(txt).then(function(){ toast(msg); });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); toast(msg); }
+    catch(e) { toast('コピーできませんでした'); }
+    document.body.removeChild(ta);
+  }
+}
+
 // 報告書用エクスポート
 function doExport() {
   var ym = g('mSel').value; // "YYYY-MM"
@@ -484,7 +516,17 @@ function doExport() {
   if(recs.length === 0) { toast('この月の記録はありません'); return; }
   var parts = ym.split('-');
   var monthLbl = parts[0] + '年' + parseInt(parts[1],10) + '月';
-  var txt = '【利用者】' + curP.n + '\n';
+  var txt = '以下は1ヶ月分の訪問リハビリ経過記録です。これをもとに月次報告書を作成してください。\n\n';
+  txt += '【出力構成】\n';
+  txt += '1. 今月の経過要約（3〜5文で全体の流れ）\n';
+  txt += '2. 主な改善点と残存課題（それぞれ簡潔に）\n';
+  txt += '3. 来月の方針と目標\n\n';
+  txt += '【ルール】\n';
+  txt += '- 見出しは上記3項目のみ使用し、それ以外は自然な文章で記述すること\n';
+  txt += '- データの変化は具体的な数値を含めること\n';
+  txt += '- ケアマネジャーや主治医が読むことを想定した平易な表現にすること\n\n';
+  txt += '---\n\n';
+  txt += '【利用者】' + curP.n + '\n';
   txt += '【対象月】' + monthLbl + '\n';
   txt += '【訪問回数】' + recs.length + '回\n\n';
   recs.forEach(function(r, i) {
@@ -516,6 +558,14 @@ g('btnBulkDel').addEventListener('click', function(){
 // 記録リストのクリック（イベント委譲）
 g('rList').addEventListener('click', function(e){
   var cp=e.target.closest('.r-cp');
+  var dap=e.target.closest('.r-dap');
+  if(dap){
+    var drid=dap.getAttribute('data-rid');
+    var rs=getRs(curP.id);
+    var rec=null; rs.forEach(function(r){ if(r.id===drid) rec=r; });
+    if(rec) copyDap(curP.n, rec);
+    return;
+  }
   if(cp){
     var txt=cp.getAttribute('data-cp');
     if(navigator.clipboard && location.protocol !== 'file:'){
