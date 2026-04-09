@@ -64,6 +64,7 @@ textarea.f-in{resize:none;line-height:1.7;}
 .dlg-rng-sep{text-align:center;color:var(--sub);font-size:13px;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;white-space:nowrap;display:none;}
 .hd-btn-cal{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;width:36px;height:36px;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+.hd-btn-day{background:#fff;border:none;color:var(--g);font-size:16px;font-weight:800;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;box-shadow:0 2px 4px rgba(0,0,0,.15);}
 .day-pick{padding:12px 16px;background:#fff;border-bottom:2px solid var(--g);display:flex;align-items:center;gap:10px;}
 .day-pick input[type=date]{flex:1;border:1.5px solid var(--g);border-radius:10px;padding:9px 12px;font-size:16px;outline:none;font-family:inherit;color:var(--tx);background:#fff;}
 .day-pick-lbl{font-size:13px;color:var(--sub);font-weight:700;white-space:nowrap;}
@@ -95,7 +96,7 @@ textarea.f-in{resize:none;line-height:1.7;}
   <div class="hd">
     <span class="hd-ttl">訪問記録</span>
     <button class="hd-btn-cal" id="btnSettings" title="バックアップ">⚙</button>
-    <button class="hd-btn-cal" id="btnGoDay" title="日別実施一覧">📅</button>
+    <button class="hd-btn-day" id="btnGoDay" title="日別実施一覧"></button>
     <button class="hd-btn" id="btnShowAb">＋</button>
   </div>
   <div class="sb">
@@ -639,6 +640,9 @@ g('dayCount').addEventListener('click', function(e){
     document.body.removeChild(ta);
   }
 });
+
+// カレンダーボタンに当日の日にちを表示
+g('btnGoDay').textContent = new Date().getDate();
 
 // 初期表示
 drawPs();
