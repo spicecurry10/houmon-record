@@ -15,6 +15,8 @@ body{font-family:'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);col
 .hd{background:var(--g);color:#fff;padding:16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.15);}
 .hd-ttl{flex:1;font-size:18px;font-weight:700;}
 .hd-btn{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:22px;width:36px;height:36px;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+.hd-btn-cal{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;width:36px;height:36px;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+.hd-btn-day{background:#fff;border:none;color:var(--g);font-size:16px;font-weight:800;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;box-shadow:0 2px 4px rgba(0,0,0,.15);}
 .bk-btn{background:transparent;border:none;color:#fff;font-size:30px;cursor:pointer;padding:0 4px;font-family:inherit;line-height:1;}
 .sb{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--bd);}
 .sb input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;}
@@ -31,7 +33,7 @@ body{font-family:'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);col
 .chv{font-size:22px;color:var(--sub);}
 .d-btn{background:transparent;border:none;font-size:18px;cursor:pointer;padding:8px;color:var(--sub);}
 .cpb{display:none;flex-wrap:wrap;gap:8px;padding:10px 16px;background:var(--gl);border-bottom:1px solid var(--bd);align-items:center;}
-.cpb select{flex:1;min-width:100px;border:1.5px solid var(--g);border-radius:8px;padding:7px 10px;font-size:14px;background:#fff;color:var(--tx);outline:none;font-family:inherit;}
+.cpb input[type=month]{flex:1;min-width:100px;border:1.5px solid var(--g);border-radius:8px;padding:7px 10px;font-size:14px;background:#fff;color:var(--tx);outline:none;font-family:inherit;}
 .btn-cp{background:var(--g);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
 .btn-cp-red{background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
 .m-lbl{font-size:12px;font-weight:700;color:var(--sub);padding:12px 0 6px;}
@@ -44,7 +46,7 @@ body{font-family:'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);col
 .r-acts{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);}
 .r-edit{background:#EFF6FF;border:2px solid #2563EB;color:#2563EB;font-size:15px;font-weight:700;cursor:pointer;padding:10px 0;border-radius:10px;font-family:inherit;flex:1;}
 .r-del{background:#FEF2F2;border:2px solid #EF4444;color:#EF4444;font-size:15px;font-weight:700;cursor:pointer;padding:10px 0;border-radius:10px;font-family:inherit;flex:1;}
-.r-dap{background:#FFF8E1;border:2px solid #F9A825;color:#F9A825;font-size:15px;font-weight:700;cursor:pointer;padding:10px 0;border-radius:10px;font-family:inherit;flex:1;}.frm{padding:20px 16px;display:flex;flex-direction:column;gap:6px;}
+.frm{padding:20px 16px;display:flex;flex-direction:column;gap:6px;}
 .f-lbl{font-size:13px;font-weight:700;color:var(--sub);margin-top:10px;}
 .f-in{border:1.5px solid var(--bd);border-radius:10px;padding:10px 14px;font-size:15px;background:#fff;outline:none;color:var(--tx);font-family:inherit;width:100%;}
 .vb{background:#fff;border:1.5px solid var(--bd);border-radius:10px;overflow:hidden;}
@@ -63,9 +65,10 @@ textarea.f-in{resize:none;line-height:1.7;}
 .btn-dl-ok{flex:1;padding:12px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
 .dlg-rng{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
 .dlg-rng-sep{text-align:center;color:var(--sub);font-size:13px;}
+.dlg-menu{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.dlg-menu button{display:flex;align-items:center;gap:12px;padding:14px;border-radius:10px;border:1.5px solid var(--bd);background:#fff;font-size:15px;font-weight:600;color:var(--tx);cursor:pointer;font-family:inherit;text-align:left;}
+.dlg-menu .ic{font-size:20px;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;white-space:nowrap;display:none;}
-.hd-btn-cal{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;width:36px;height:36px;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;}
-.hd-btn-day{background:#fff;border:none;color:var(--g);font-size:16px;font-weight:800;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;box-shadow:0 2px 4px rgba(0,0,0,.15);}
 .day-pick{padding:12px 16px;background:#fff;border-bottom:2px solid var(--g);display:flex;align-items:center;gap:10px;}
 .day-pick input[type=date]{flex:1;border:1.5px solid var(--g);border-radius:10px;padding:9px 12px;font-size:16px;outline:none;font-family:inherit;color:var(--tx);background:#fff;}
 .day-pick-lbl{font-size:13px;color:var(--sub);font-weight:700;white-space:nowrap;}
@@ -81,13 +84,6 @@ textarea.f-in{resize:none;line-height:1.7;}
 .day-count-bar{padding:10px 16px;font-size:13px;font-weight:700;color:var(--bl);background:var(--bll);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
 .day-count-txt{flex:1;}
 .btn-day-cp{background:var(--bl);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
-.p-badge{background:var(--g);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;margin-right:4px;white-space:nowrap;}
-.p-btn.done{background:var(--gl);}
-.cpb input[type=month]{flex:1;min-width:140px;border:1.5px solid var(--g);border-radius:8px;padding:7px 10px;font-size:14px;background:#fff;color:var(--tx);outline:none;font-family:inherit;}
-.dlg-menu{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
-.dlg-menu button{background:#fff;border:1.5px solid var(--g);color:var(--g);font-size:15px;font-weight:700;padding:14px;border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px;}
-.dlg-menu button:hover{background:var(--gl);}
-.dlg-menu .ic{font-size:20px;}
 </style>
 </head>
 <body>
@@ -144,7 +140,7 @@ textarea.f-in{resize:none;line-height:1.7;}
       <div class="vr"><span class="vl">PR：</span><input type="tel" id="iPr"></div>
     </div>
     <label class="f-lbl">様子</label>
-    <textarea class="f-in" id="iMemo" rows="5" placeholder="訪問時の様子・特記事項"></textarea>
+    <textarea class="f-in" id="iMemo" rows="6"></textarea>
     <button class="btn-sv" id="btnSave">保存</button>
   </div>
 </div>
@@ -191,20 +187,31 @@ textarea.f-in{resize:none;line-height:1.7;}
   </div>
 </div>
 
-<!-- バックアップ／復元ダイアログ -->
+<!-- バックアップメニュー -->
 <div id="ov3" class="ov">
   <div class="dlg">
-    <p>データのバックアップ</p>
+    <p>バックアップ</p>
     <div class="dlg-menu">
-      <button id="btnExpAll"><span class="ic">📥</span>データを保存（JSONダウンロード）</button>
-      <button id="btnImpAll"><span class="ic">📤</span>データを読み込む（JSONから復元）</button>
+      <button id="btnExpJson"><span class="ic">📤</span>データをエクスポート</button>
+      <button id="btnImpJson"><span class="ic">📥</span>データをインポート</button>
     </div>
     <div class="dlg-bts">
-      <button class="btn-dl-no" id="btnSetClose">閉じる</button>
+      <button class="btn-dl-no" id="btnMenuClose" style="flex:1;">閉じる</button>
     </div>
   </div>
 </div>
-<input type="file" id="impFile" accept="application/json,.json" style="display:none;">
+
+<!-- インポートダイアログ -->
+<div id="ov4" class="ov">
+  <div class="dlg">
+    <p>JSONデータを貼り付け</p>
+    <textarea id="impText" class="f-in" rows="6" style="margin-bottom:16px;" placeholder='{"ps":[...],"rs":{...}}'></textarea>
+    <div class="dlg-bts">
+      <button class="btn-dl-no" id="btnImpNo">キャンセル</button>
+      <button class="btn-dl-ok" id="btnImpOk" style="background:var(--g);">取り込む</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -212,6 +219,7 @@ textarea.f-in{resize:none;line-height:1.7;}
 var curP = null;
 var dlgCb = null;
 var editId = null;
+var dayFound = [];
 
 // localStorage フォールバック
 var _mem = {};
@@ -231,8 +239,13 @@ function today() {
   var d=new Date();
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
+function thisMonth() {
+  var d=new Date();
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2);
+}
 function fmtD(s) { var d=new Date(s); return (d.getMonth()+1)+'/'+(d.getDate()); }
 function mLbl(s) { var d=new Date(s); return d.getFullYear()+'年'+(d.getMonth()+1)+'月'; }
+function mKey(s) { var d=new Date(s); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); }
 function toast(msg) {
   var t=g('toast'); t.textContent=msg; t.style.display='block';
   setTimeout(function(){ t.style.display='none'; }, 2500);
@@ -253,7 +266,6 @@ function go(n, opt) {
 function drawPs() {
   var q=g('srch').value;
   var all=getPs();
-  var td=today();
   all.sort(function(a,b){ return a.n.localeCompare(b.n, 'ja'); });
   var ps=all.filter(function(p){ return p.n.indexOf(q)!==-1; });
   var el=g('pList');
@@ -261,12 +273,9 @@ function drawPs() {
   if(all.length===0){ el.innerHTML='<div class="empty">＋ボタンで利用者を追加</div>'; return; }
   if(ps.length===0){ el.innerHTML='<div class="empty">「'+q+'」に一致する利用者はいません</div>'; return; }
   ps.forEach(function(p){
-    var rs=getRs(p.id);
-    var done=rs.some(function(r){ return r.d===td; });
     var row=document.createElement('div'); row.className='p-row';
-    var btn=document.createElement('button'); btn.className='p-btn'+(done?' done':'');
-    var badge=done?'<span class="p-badge">✓本日</span>':'';
-    btn.innerHTML='<span class="av">'+p.n[0]+'</span><span class="p-nm">'+p.n+'</span>'+badge+'<span class="chv">›</span>';
+    var btn=document.createElement('button'); btn.className='p-btn';
+    btn.innerHTML='<span class="av">'+p.n[0]+'</span><span class="p-nm">'+p.n+'</span><span class="chv">›</span>';
     btn.setAttribute('data-id', p.id);
     var del=document.createElement('button'); del.className='d-btn'; del.textContent='🗑';
     del.setAttribute('data-id', p.id);
@@ -291,14 +300,10 @@ function drawRs() {
   rs.forEach(function(r){ var m=mLbl(r.d); if(!groups[m]) groups[m]=[]; groups[m].push(r); });
   var months=Object.keys(groups).sort(function(a,b){ return b.localeCompare(a); });
   var cpb=g('cpb'), ms=g('mSel');
-  if(rs.length>0){
+  if(months.length>0){
     cpb.style.display='flex';
-    var sorted=rs.slice().sort(function(a,b){ return b.d.localeCompare(a.d); });
-    ms.value=sorted[0].d.substring(0,7);
-  } else {
-    cpb.style.display='none';
-    ms.value=today().substring(0,7);
-  }
+    if(!ms.value) ms.value = thisMonth();
+  } else { cpb.style.display='none'; }
   if(rs.length===0){ el.innerHTML='<div class="empty">＋ボタンで記録を追加</div>'; return; }
   months.forEach(function(m){
     var lbl=document.createElement('div'); lbl.className='m-lbl'; lbl.textContent=m; el.appendChild(lbl);
@@ -317,9 +322,8 @@ function drawRs() {
       }
       var acts=document.createElement('div'); acts.className='r-acts';
       var eb=document.createElement('button'); eb.className='r-edit'; eb.textContent='編集'; eb.setAttribute('data-rid', r.id);
-      var dapb=document.createElement('button'); dapb.className='r-dap'; dapb.textContent='DAP変換'; dapb.setAttribute('data-rid', r.id);
       var db=document.createElement('button'); db.className='r-del'; db.textContent='削除'; db.setAttribute('data-rid', r.id);
-      acts.appendChild(eb); acts.appendChild(dapb); acts.appendChild(db);
+      acts.appendChild(eb); acts.appendChild(db);
       c.appendChild(acts); el.appendChild(c);
     });
   });
@@ -343,20 +347,148 @@ function initForm(r) {
     g('pg3ttl').textContent = curP.n + '　記録追加';
     g('btnSave').textContent = '保存';
     g('iDate').value = today();
-    // 前回値を自動入力（バイタルのみ。様子は引き継がない）
-    var rsAll = getRs(curP.id);
-    if(rsAll.length > 0) {
-      var last = rsAll.slice().sort(function(a,b){ return b.d.localeCompare(a.d); })[0];
-      var vL = (last.v||'').split('\n');
-      g('iSbp').value  = (vL[0]||'').replace('SBP：','');
-      g('iDbp').value  = (vL[1]||'').replace('DBP：','');
-      g('iSpo2').value = (vL[2]||'').replace('SpO2：','');
-      g('iPr').value   = (vL[3]||'').replace('PR：','');
-    } else {
-      g('iSbp').value=''; g('iDbp').value=''; g('iSpo2').value=''; g('iPr').value='';
-    }
-    g('iMemo').value='';
+    g('iSbp').value=''; g('iDbp').value=''; g('iSpo2').value=''; g('iPr').value=''; g('iMemo').value='';
   }
+}
+
+// 医療用語辞書：ひらがな・誤字を正しい表記へ補正
+var medDict = {
+  // バイタル
+  'けつあつ':'血圧','けっあつ':'血圧','みゃくはく':'脈拍','たいおん':'体温',
+  'ばいたる':'バイタル','こきゅう':'呼吸',
+  // リハビリ・動作
+  'りはびり':'リハビリ','くんれん':'訓練','ほこう':'歩行','きりつ':'起立',
+  'どうさ':'動作','ねがえり':'寝返り','ざい':'座位',
+  // 評価語
+  'あんてい':'安定','ふあんてい':'不安定','りょうこう':'良好','ふりょう':'不良',
+  'かいぜん':'改善','あっか':'悪化','じゅんちょう':'順調','ていか':'低下','じょうしょう':'上昇',
+  // 介入語
+  'じっし':'実施','しこう':'施行','けいぞく':'継続','さいかい':'再開','ちゅうし':'中止',
+  'しどう':'指導','せつめい':'説明','かくにん':'確認','かんさつ':'観察',
+  'ちょうせい':'調整','へんこう':'変更','よてい':'予定','かいじょ':'介助','じりつ':'自立',
+  // 症状
+  'とうつう':'疼痛','ずつう':'頭痛','づつう':'頭痛','はつねつ':'発熱','びねつ':'微熱',
+  'ふしゅ':'浮腫','はっかん':'発汗','はきけ':'嘔気','おうと':'嘔吐',
+  'げり':'下痢','べんぴ':'便秘','ひろう':'疲労','しょくよく':'食欲',
+  'すいみん':'睡眠','いしき':'意識',
+  // ADL
+  'ふくやく':'服薬','しょくじ':'食事','にゅうよく':'入浴','はいせつ':'排泄',
+  'えんげ':'嚥下','ごえん':'誤嚥',
+  // 重複タイプミス
+  '疲労労':'疲労','血圧圧':'血圧','安定定':'安定','改善善':'改善','実施施':'実施'
+};
+
+// 医療用語補正
+function correctTerms(txt) {
+  var keys = Object.keys(medDict).sort(function(a,b){ return b.length - a.length; });
+  keys.forEach(function(k){
+    if (txt.indexOf(k) !== -1) txt = txt.split(k).join(medDict[k]);
+  });
+  return txt;
+}
+
+// 箇条書き→DAP構造（Data→Assessment→Plan）で解釈し、自然な一つの文章へ整形
+function formatMemo(txt) {
+  if (!txt) return '';
+  txt = correctTerms(txt);
+  var allLines = txt.split('\n').map(function(l){ return l.trim(); });
+  var nonEmpty = allLines.filter(function(l){ return l; });
+  if (nonEmpty.length === 0) return '';
+  var hasMarkers = nonEmpty.some(function(l){
+    return /^[・\-\*•◯○●＊]/.test(l) || /^[0-9０-９]+[\.\)）]/.test(l);
+  });
+  // 1行のみ＆マーカーなし → そのまま返す（既に整形済みとみなす）
+  if (nonEmpty.length === 1 && !hasMarkers) return nonEmpty[0];
+  // 各行をクリーンアップ
+  var items = nonEmpty.map(function(line) {
+    line = line.replace(/^[・\-\*•◯○●＊]+[\s　]*/, '');
+    line = line.replace(/^[0-9０-９]+[\.\)）][\s　]*/, '');
+    line = line.trim();
+    line = line.replace(/[。．,、\s　]+$/, '');
+    return line;
+  }).filter(function(l){ return l; });
+  if (items.length === 0) return '';
+
+  // DAP分類：Plan（介入・計画）→ Assessment（評価・判断）→ それ以外Data（観察事実）
+  function classify(item) {
+    if (/(実施|施行|予定|継続|指導|依頼|説明|勧め|推奨|検討|介入|提案|指示|フォロー|確認|観察|調整|変更|中止|開始|再開)$/.test(item)) return 'P';
+    if (/(良好|不良|安定|不安定|改善|悪化|増悪|維持|傾向|効果|順調|低下|上昇|回復|軽減|増強|進行|見られる|見られず|認められる|認められず|認める|認めず)$/.test(item)) return 'A';
+    return 'D';
+  }
+  var D = [], A = [], P = [];
+  items.forEach(function(item) {
+    var c = classify(item);
+    if (c === 'D') D.push(item);
+    else if (c === 'A') A.push(item);
+    else P.push(item);
+  });
+  // 「予定」はP内で末尾へ（文章の締めくくりに自然）
+  var P_sorted = P.filter(function(i){ return !/予定$/.test(i); })
+                  .concat(P.filter(function(i){ return /予定$/.test(i); }));
+  var ordered = D.concat(A).concat(P_sorted);
+
+  // 末尾語に応じた自然な接続形（助詞 は/を を自動挿入）
+  function naturalize(item, isLast) {
+    // 既に助詞を含む場合は自然な表現とみなして変換しない
+    if (/[はをがにで]/.test(item)) return item;
+
+    var m;
+    // なし：観察事実の否定
+    if ((m = item.match(/^(.+?)なし$/))) {
+      return m[1] + (isLast ? 'は認めず' : 'なく');
+    }
+    // あり：観察事実の肯定
+    if ((m = item.match(/^(.+?)あり$/))) {
+      return m[1] + 'あり';
+    }
+    // 訴え
+    if ((m = item.match(/^(.+?)訴え$/))) {
+      return m[1] + (isLast ? 'の訴えあり' : 'の訴えがあり');
+    }
+
+    var patterns = [
+      // Plan: 名詞 + を + 動詞
+      { re:/^(.+?)実施$/, mid:'を実施し',     end:'を実施した' },
+      { re:/^(.+?)施行$/, mid:'を施行し',     end:'を施行した' },
+      { re:/^(.+?)確認$/, mid:'を確認し',     end:'を確認した' },
+      { re:/^(.+?)観察$/, mid:'を観察し',     end:'を観察した' },
+      { re:/^(.+?)調整$/, mid:'を調整し',     end:'を調整した' },
+      { re:/^(.+?)開始$/, mid:'を開始し',     end:'を開始した' },
+      { re:/^(.+?)再開$/, mid:'を再開し',     end:'を再開した' },
+      { re:/^(.+?)中止$/, mid:'を中止し',     end:'を中止した' },
+      { re:/^(.+?)変更$/, mid:'を変更し',     end:'を変更した' },
+      { re:/^(.+?)継続$/, mid:'を継続し',     end:'を継続中'  },
+      { re:/^(.+?)指導$/, mid:'指導を実施し',  end:'指導を実施した' },
+      { re:/^(.+?)説明$/, mid:'について説明し', end:'について説明した' },
+      { re:/^(.+?)予定$/, mid:'予定であり',    end:'予定' },
+      // Assessment: 名詞 + は + 状態
+      { re:/^(.+?)良好$/,   mid:'は良好で',          end:'は良好' },
+      { re:/^(.+?)不良$/,   mid:'は不良で',          end:'は不良' },
+      { re:/^(.+?)順調$/,   mid:'は順調で',          end:'は順調' },
+      { re:/^(.+?)不安定$/, mid:'は不安定で',        end:'は不安定' },
+      { re:/^(.+?)安定$/,   mid:'は安定しており',    end:'は安定している' },
+      { re:/^(.+?)改善$/,   mid:'は改善しており',    end:'は改善している' },
+      { re:/^(.+?)悪化$/,   mid:'は悪化しており',    end:'は悪化している' },
+      { re:/^(.+?)増悪$/,   mid:'は増悪しており',    end:'は増悪している' },
+      { re:/^(.+?)維持$/,   mid:'は維持されており',  end:'は維持されている' },
+      { re:/^(.+?)低下$/,   mid:'は低下しており',    end:'は低下している' },
+      { re:/^(.+?)上昇$/,   mid:'は上昇しており',    end:'は上昇している' },
+      { re:/^(.+?)軽減$/,   mid:'は軽減しており',    end:'は軽減している' },
+      { re:/^(.+?)増強$/,   mid:'は増強しており',    end:'は増強している' },
+      { re:/^(.+?)回復$/,   mid:'は回復しており',    end:'は回復している' },
+      { re:/^(.+?)進行$/,   mid:'は進行しており',    end:'は進行している' }
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+      var p = patterns[i];
+      var mp = item.match(p.re);
+      if (mp) return mp[1] + (isLast ? p.end : p.mid);
+    }
+    return item;
+  }
+  var parts = ordered.map(function(item, i) {
+    return naturalize(item, i === ordered.length - 1);
+  });
+  return parts.join('、') + '。';
 }
 
 // 保存／更新
@@ -367,7 +499,7 @@ function saveR() {
     id: editId || ''+Date.now(),
     d: g('iDate').value,
     v: 'SBP：'+g('iSbp').value+'\nDBP：'+g('iDbp').value+'\nSpO2：'+g('iSpo2').value+'\nPR：'+g('iPr').value,
-    m: g('iMemo').value
+    m: formatMemo(g('iMemo').value)
   };
   var rs = getRs(curP.id);
   if(isEdit) {
@@ -403,7 +535,6 @@ function showDlg(msg, cb) { g('dlgMsg').textContent=msg; g('ov').className='ov o
 function closeDlg() { g('ov').className='ov'; dlgCb=null; }
 
 // 日別実施一覧描画
-var dayFound = [];
 function drawDay() {
   var dt = g('dayDate').value;
   var el = g('dayList');
@@ -449,6 +580,20 @@ function drawDay() {
   });
 }
 
+// クリップボードコピー（file://対応）
+function copyText(txt, okMsg) {
+  if(navigator.clipboard && location.protocol !== 'file:'){
+    navigator.clipboard.writeText(txt).then(function(){ toast(okMsg); });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); toast(okMsg); }
+    catch(e) { toast('コピーできませんでした'); }
+    document.body.removeChild(ta);
+  }
+}
+
 // イベント：利用者一覧
 g('btnShowAb').addEventListener('click', function(){ g('ab').style.display='flex'; setTimeout(function(){ g('newName').focus(); }, 50); });
 g('btnAddOk').addEventListener('click', addP);
@@ -476,74 +621,24 @@ g('pList').addEventListener('click', function(e){
   }
 });
 
-// DAP変換コピー
-function copyDap(name, r) {
-  var txt = '以下のキーワードから訪問リハビリの経過記録を作成してください。\n\n';
-  txt += '【ルール】\n';
-  txt += '- DAP（Data→Assessment→Plan）の構造で解釈すること\n';
-  txt += '- ただしD/A/Pのラベルはつけず、一つの自然な文章として出力すること\n';
-  txt += '- 観察事実→臨床的解釈→今後の方針、の順に流れるように書くこと\n';
-  txt += '- 1回の記録は3〜5文程度にまとめること\n';
-  txt += '- 患者の発言は「」で引用すること\n\n';
-  txt += '【利用者】' + name + '\n';
-  txt += '【日付】' + r.d + '\n';
-  txt += '【バイタル】\n' + (r.v||'') + '\n';
-  txt += '【様子・キーワード】\n' + (r.m||'') + '\n';
-  clipCopy(txt, 'DAP変換プロンプトをコピーしました');
-}
-
-// 汎用クリップボードコピー
-function clipCopy(txt, msg) {
-  if(navigator.clipboard && location.protocol !== 'file:'){
-    navigator.clipboard.writeText(txt).then(function(){ toast(msg); });
-  } else {
-    var ta=document.createElement('textarea');
-    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try { document.execCommand('copy'); toast(msg); }
-    catch(e) { toast('コピーできませんでした'); }
-    document.body.removeChild(ta);
-  }
-}
-
 // 報告書用エクスポート
 function doExport() {
-  var ym = g('mSel').value; // "YYYY-MM"
-  if(!ym) { toast('月を選択してください'); return; }
+  var month = g('mSel').value; // YYYY-MM
+  if(!month) { toast('月を選択してください'); return; }
   var rs = getRs(curP.id);
-  var recs = rs.filter(function(r){ return r.d.substring(0,7) === ym; })
-                .slice().sort(function(a,b){ return a.d.localeCompare(b.d); });
-  if(recs.length === 0) { toast('この月の記録はありません'); return; }
-  var parts = ym.split('-');
-  var monthLbl = parts[0] + '年' + parseInt(parts[1],10) + '月';
-  var txt = '以下は1ヶ月分の訪問リハビリ経過記録です。これをもとに月次報告書を作成してください。\n\n';
-  txt += '【出力構成】\n';
-  txt += '1. 今月の経過要約（3〜5文で全体の流れ）\n';
-  txt += '2. 主な改善点と残存課題（それぞれ簡潔に）\n';
-  txt += '3. 来月の方針と目標\n\n';
-  txt += '【ルール】\n';
-  txt += '- 見出しは上記3項目のみ使用し、それ以外は自然な文章で記述すること\n';
-  txt += '- データの変化は具体的な数値を含めること\n';
-  txt += '- ケアマネジャーや主治医が読むことを想定した平易な表現にすること\n\n';
-  txt += '---\n\n';
-  txt += '【利用者】' + curP.n + '\n';
-  txt += '【対象月】' + monthLbl + '\n';
+  var recs = rs.filter(function(r){ return mKey(r.d) === month; })
+               .sort(function(a,b){ return a.d.localeCompare(b.d); });
+  if(recs.length === 0) { toast(month + 'の記録はありません'); return; }
+  var mLabel = month.substring(0,4)+'年'+parseInt(month.substring(5,7),10)+'月';
+  var txt = '【利用者】' + curP.n + '\n';
+  txt += '【対象月】' + mLabel + '\n';
   txt += '【訪問回数】' + recs.length + '回\n\n';
   recs.forEach(function(r, i) {
     txt += '■ 第' + (i+1) + '回訪問（' + fmtD(r.d) + '）\n';
     txt += (r.v || '') + '\n';
     txt += '様子：' + (r.m || '記録なし') + '\n\n';
   });
-  if(navigator.clipboard && location.protocol !== 'file:'){
-    navigator.clipboard.writeText(txt).then(function(){ toast('報告書用テキストをコピーしました'); });
-  } else {
-    var ta=document.createElement('textarea');
-    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try { document.execCommand('copy'); toast('報告書用テキストをコピーしました'); }
-    catch(e) { toast('コピーできませんでした'); }
-    document.body.removeChild(ta);
-  }
+  copyText(txt, '報告書用テキストをコピーしました');
 }
 
 // イベント：記録一覧
@@ -558,26 +653,8 @@ g('btnBulkDel').addEventListener('click', function(){
 // 記録リストのクリック（イベント委譲）
 g('rList').addEventListener('click', function(e){
   var cp=e.target.closest('.r-cp');
-  var dap=e.target.closest('.r-dap');
-  if(dap){
-    var drid=dap.getAttribute('data-rid');
-    var rs=getRs(curP.id);
-    var rec=null; rs.forEach(function(r){ if(r.id===drid) rec=r; });
-    if(rec) copyDap(curP.n, rec);
-    return;
-  }
   if(cp){
-    var txt=cp.getAttribute('data-cp');
-    if(navigator.clipboard && location.protocol !== 'file:'){
-      navigator.clipboard.writeText(txt).then(function(){ toast('様子をコピーしました'); });
-    } else {
-      var ta=document.createElement('textarea');
-      ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.focus(); ta.select();
-      try { document.execCommand('copy'); toast('様子をコピーしました'); }
-      catch(e2) { toast('コピーできませんでした'); }
-      document.body.removeChild(ta);
-    }
+    copyText(cp.getAttribute('data-cp'), '様子をコピーしました');
     return;
   }
   var eb=e.target.closest('.r-edit');
@@ -609,58 +686,6 @@ g('btnDlOk').addEventListener('click', function(){ if(dlgCb) dlgCb(); closeDlg()
 g('btnRngNo').addEventListener('click', function(){ g('ov2').className='ov'; });
 g('btnRngOk').addEventListener('click', doBulkDelete);
 
-// バックアップ／復元
-function exportAll() {
-  var ps = getPs();
-  var data = { v:1, exportedAt: new Date().toISOString(), ps: ps, rs: {} };
-  ps.forEach(function(p){ data.rs[p.id] = getRs(p.id); });
-  var json = JSON.stringify(data, null, 2);
-  try {
-    var blob = new Blob([json], {type:'application/json'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = '訪問記録_'+today()+'.json';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-    toast('バックアップを保存しました');
-  } catch(e) {
-    toast('保存に失敗しました');
-  }
-}
-
-function importAll(file) {
-  if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var data = JSON.parse(e.target.result);
-      if(!data.ps || !Array.isArray(data.ps) || !data.rs) throw new Error('形式不正');
-      showDlg('現在のデータを上書きします。よろしいですか？', function(){
-        setPs(data.ps);
-        Object.keys(data.rs).forEach(function(id){ setRs(id, data.rs[id]); });
-        g('ov3').className='ov';
-        drawPs();
-        toast('データを復元しました（'+data.ps.length+'名）');
-      });
-    } catch(err) {
-      toast('読み込みに失敗しました');
-    }
-  };
-  reader.readAsText(file);
-}
-
-// イベント：バックアップ／復元
-g('btnSettings').addEventListener('click', function(){ g('ov3').className='ov on'; });
-g('btnSetClose').addEventListener('click', function(){ g('ov3').className='ov'; });
-g('btnExpAll').addEventListener('click', exportAll);
-g('btnImpAll').addEventListener('click', function(){ g('impFile').click(); });
-g('impFile').addEventListener('change', function(e){
-  var f = e.target.files[0];
-  importAll(f);
-  e.target.value = '';
-});
-
 // イベント：日別実施一覧
 g('btnGoDay').addEventListener('click', function(){
   g('dayDate').value = today();
@@ -679,16 +704,39 @@ g('dayCount').addEventListener('click', function(e){
     txt += '■ '+item.p.n+'\n';
     txt += (item.r.m || '記録なし')+'\n\n';
   });
-  if(navigator.clipboard && location.protocol !== 'file:'){
-    navigator.clipboard.writeText(txt).then(function(){ toast('様子を一括コピーしました'); });
-  } else {
-    var ta=document.createElement('textarea');
-    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try { document.execCommand('copy'); toast('様子を一括コピーしました'); }
-    catch(e3) { toast('コピーできませんでした'); }
-    document.body.removeChild(ta);
-  }
+  copyText(txt, '様子を一括コピーしました');
+});
+
+// イベント：バックアップ
+g('btnSettings').addEventListener('click', function(){ g('ov3').className='ov on'; });
+g('btnMenuClose').addEventListener('click', function(){ g('ov3').className='ov'; });
+g('btnExpJson').addEventListener('click', function(){
+  var ps = getPs();
+  var rs = {};
+  ps.forEach(function(p){ rs[p.id] = getRs(p.id); });
+  var data = { ps: ps, rs: rs, exportedAt: new Date().toISOString() };
+  var json = JSON.stringify(data, null, 2);
+  copyText(json, 'データをクリップボードにコピーしました');
+  g('ov3').className='ov';
+});
+g('btnImpJson').addEventListener('click', function(){
+  g('ov3').className='ov';
+  g('impText').value='';
+  g('ov4').className='ov on';
+});
+g('btnImpNo').addEventListener('click', function(){ g('ov4').className='ov'; });
+g('btnImpOk').addEventListener('click', function(){
+  var txt = g('impText').value.trim();
+  if(!txt) { toast('データを貼り付けてください'); return; }
+  try {
+    var data = JSON.parse(txt);
+    if(!data.ps || !data.rs) { toast('形式が正しくありません'); return; }
+    setPs(data.ps);
+    Object.keys(data.rs).forEach(function(id){ setRs(id, data.rs[id]); });
+    g('ov4').className='ov';
+    drawPs();
+    toast('データを取り込みました');
+  } catch(e) { toast('JSONの解析に失敗しました'); }
 });
 
 // カレンダーボタンに当日の日にちを表示
