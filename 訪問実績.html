@@ -84,6 +84,12 @@ textarea.f-in{resize:none;line-height:1.7;}
 .day-count-bar{padding:10px 16px;font-size:13px;font-weight:700;color:var(--bl);background:var(--bll);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
 .day-count-txt{flex:1;}
 .btn-day-cp{background:var(--bl);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.mic-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.btn-mic{background:var(--g);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.btn-mic.rec{background:var(--red);}
+.btn-mic.rec .mic-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;animation:mblink 1s step-end infinite;}
+@keyframes mblink{50%{opacity:0;}}
+.mic-st{font-size:12px;color:var(--sub);flex:1;}
 </style>
 </head>
 <body>
@@ -141,6 +147,10 @@ textarea.f-in{resize:none;line-height:1.7;}
     </div>
     <label class="f-lbl">様子</label>
     <textarea class="f-in" id="iMemo" rows="6"></textarea>
+    <div class="mic-row">
+      <button class="btn-mic" id="micBtn"><span id="micDot" class="mic-dot" style="display:none;"></span>🎤 音声入力</button>
+      <span id="micStatus" class="mic-st"></span>
+    </div>
     <button class="btn-sv" id="btnSave">保存</button>
   </div>
 </div>
@@ -220,6 +230,9 @@ var curP = null;
 var dlgCb = null;
 var editId = null;
 var dayFound = [];
+var _micRec = null;
+var _micListening = false;
+var _micFinal = '';
 
 // localStorage フォールバック
 var _mem = {};
@@ -331,6 +344,7 @@ function drawRs() {
 
 // フォーム初期化（編集時はレコードを渡す）
 function initForm(r) {
+  if(_micListening && _micRec) { try { _micRec.stop(); } catch(e){} }
   if(r) {
     editId = r.id;
     g('pg3ttl').textContent = curP.n + '　記録編集';
@@ -355,27 +369,58 @@ function initForm(r) {
 var medDict = {
   // バイタル
   'けつあつ':'血圧','けっあつ':'血圧','みゃくはく':'脈拍','たいおん':'体温',
-  'ばいたる':'バイタル','こきゅう':'呼吸',
+  'ばいたる':'バイタル','こきゅう':'呼吸','さんそほうわど':'酸素飽和度',
+  'けっとう':'血糖','たいじゅう':'体重','こうけつあつ':'高血圧','ていけつあつ':'低血圧',
   // リハビリ・動作
   'りはびり':'リハビリ','くんれん':'訓練','ほこう':'歩行','きりつ':'起立',
-  'どうさ':'動作','ねがえり':'寝返り','ざい':'座位',
+  'どうさ':'動作','ねがえり':'寝返り','ざい':'座位','りつい':'立位',
+  'おきあがり':'起き上がり','いどう':'移動','いじょう':'移乗',
+  'ほこうれんしゅう':'歩行練習','きりつどうさ':'起立動作',
+  'きんりょく':'筋力','ばらんす':'バランス','すとれっち':'ストレッチ',
+  'きんりょくくんれん':'筋力訓練','ばらんすくんれん':'バランス訓練',
+  'きのうくんれん':'機能訓練','かんせつかどいき':'関節可動域',
+  'にちじょうせいかつどうさ':'日常生活動作','いどうのうりょく':'移動能力',
+  // 疾患・障害
+  'へんまひ':'片麻痺','りょうまひ':'両麻痺',
+  'のうこうそく':'脳梗塞','のうしゅっけつ':'脳出血',
+  'にんちしょう':'認知症','にんちきのう':'認知機能',
+  'こっせつ':'骨折','だっきゅう':'脱臼',
+  'へんけいせいかんせつしょう':'変形性関節症',
+  'のうけっかんしっかん':'脳血管疾患',
+  'しんふぜん':'心不全','とうにょうびょう':'糖尿病',
   // 評価語
   'あんてい':'安定','ふあんてい':'不安定','りょうこう':'良好','ふりょう':'不良',
   'かいぜん':'改善','あっか':'悪化','じゅんちょう':'順調','ていか':'低下','じょうしょう':'上昇',
+  'じりつど':'自立度','かいじょりょう':'介助量',
   // 介入語
   'じっし':'実施','しこう':'施行','けいぞく':'継続','さいかい':'再開','ちゅうし':'中止',
   'しどう':'指導','せつめい':'説明','かくにん':'確認','かんさつ':'観察',
   'ちょうせい':'調整','へんこう':'変更','よてい':'予定','かいじょ':'介助','じりつ':'自立',
+  'たいおう':'対応','そうだん':'相談','ほうこく':'報告','れんらく':'連絡',
   // 症状
-  'とうつう':'疼痛','ずつう':'頭痛','づつう':'頭痛','はつねつ':'発熱','びねつ':'微熱',
-  'ふしゅ':'浮腫','はっかん':'発汗','はきけ':'嘔気','おうと':'嘔吐',
-  'げり':'下痢','べんぴ':'便秘','ひろう':'疲労','しょくよく':'食欲',
-  'すいみん':'睡眠','いしき':'意識',
+  'とうつう':'疼痛','いたみ':'疼痛','ずつう':'頭痛','づつう':'頭痛',
+  'はつねつ':'発熱','びねつ':'微熱',
+  'ふしゅ':'浮腫','むくみ':'浮腫','はっかん':'発汗','はきけ':'嘔気','おうと':'嘔吐',
+  'げり':'下痢','べんぴ':'便秘','ひろう':'疲労','けんたいかん':'倦怠感',
+  'しょくよく':'食欲','すいみん':'睡眠','いしき':'意識','ふらつき':'ふらつき',
   // ADL
   'ふくやく':'服薬','しょくじ':'食事','にゅうよく':'入浴','はいせつ':'排泄',
   'えんげ':'嚥下','ごえん':'誤嚥',
-  // 重複タイプミス
-  '疲労労':'疲労','血圧圧':'血圧','安定定':'安定','改善善':'改善','実施施':'実施'
+  'はいにょう':'排尿','はいべん':'排便','にょうしっきん':'尿失禁',
+  'きがえ':'更衣','こうくうけあ':'口腔ケア',
+  // 体の部位
+  'たいかん':'体幹','じょうし':'上肢',
+  'けんかんせつ':'肩関節','ひざかんせつ':'膝関節','こかんせつ':'股関節',
+  'あしかんせつ':'足関節','ひじかんせつ':'肘関節',
+  'けいぶ':'頸部','きょうぶ':'胸部','ふくぶ':'腹部','ようぶ':'腰部',
+  // スタッフ・関係者
+  'りがくりょうほうし':'理学療法士','さぎょうりょうほうし':'作業療法士',
+  'げんごちょうかくし':'言語聴覚士',
+  'けあまねーじゃー':'ケアマネージャー','けあまね':'ケアマネ',
+  // 重複タイプミス（音声入力・変換ミス特有）
+  '疲労労':'疲労','血圧圧':'血圧','安定定':'安定','改善善':'改善','実施施':'実施',
+  '訓練練':'訓練','観察察':'観察','継続続':'継続','指導導':'指導',
+  '評価価':'評価','説明明':'説明','確認認':'確認','調整整':'調整'
 };
 
 // 医療用語補正
@@ -741,6 +786,82 @@ g('btnImpOk').addEventListener('click', function(){
 
 // カレンダーボタンに当日の日にちを表示
 g('btnGoDay').textContent = new Date().getDate();
+
+// 音声入力（Web Speech API / iOS キーボードマイク対応）
+function initSpeech() {
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var micBtn = g('micBtn');
+  var micSt = g('micStatus');
+  var micDot = g('micDot');
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  // iOS：Web Speech API非対応のためキーボードマイクへ誘導＋blur時自動変換
+  if (isIOS) {
+    micBtn.addEventListener('click', function() {
+      g('iMemo').focus();
+      toast('キーボードの🎤で音声入力 → フォーカスを外すと自動変換されます');
+    });
+    g('iMemo').addEventListener('blur', function() {
+      var v = g('iMemo').value;
+      var c = correctTerms(v);
+      if (c !== v) { g('iMemo').value = c; toast('医療用語を変換しました'); }
+    });
+    return;
+  }
+
+  // Web Speech API非対応ブラウザ
+  if (!SpeechRec) { micBtn.style.display = 'none'; return; }
+
+  var rec = new SpeechRec();
+  rec.lang = 'ja-JP';
+  rec.continuous = true;
+  rec.interimResults = true;
+  _micRec = rec;
+
+  micBtn.addEventListener('click', function() {
+    if (_micListening) { rec.stop(); return; }
+    _micFinal = g('iMemo').value ? g('iMemo').value + '\n' : '';
+    try { rec.start(); } catch(e) { toast('マイクを起動できません'); }
+  });
+
+  rec.onstart = function() {
+    _micListening = true;
+    micDot.style.display = 'inline-block';
+    micBtn.classList.add('rec');
+    micBtn.childNodes[micBtn.childNodes.length-1].textContent = ' 停止';
+    micSt.textContent = '認識中…';
+  };
+
+  rec.onresult = function(e) {
+    var interim = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) { _micFinal += correctTerms(t); }
+      else { interim = t; }
+    }
+    g('iMemo').value = _micFinal + interim;
+    g('iMemo').scrollTop = g('iMemo').scrollHeight;
+  };
+
+  rec.onend = function() {
+    _micListening = false;
+    micDot.style.display = 'none';
+    micBtn.classList.remove('rec');
+    micBtn.childNodes[micBtn.childNodes.length-1].textContent = ' 音声入力';
+    micSt.textContent = '';
+    g('iMemo').value = correctTerms(g('iMemo').value);
+  };
+
+  rec.onerror = function(e) {
+    _micListening = false;
+    micDot.style.display = 'none';
+    micBtn.classList.remove('rec');
+    micBtn.childNodes[micBtn.childNodes.length-1].textContent = ' 音声入力';
+    micSt.textContent = '';
+    if (e.error !== 'no-speech') toast('音声エラー: ' + e.error);
+  };
+}
+initSpeech();
 
 // 初期表示
 drawPs();
