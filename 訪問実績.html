@@ -90,6 +90,17 @@ textarea.f-in{resize:none;line-height:1.7;}
 .btn-mic.rec .mic-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;animation:mblink 1s step-end infinite;}
 @keyframes mblink{50%{opacity:0;}}
 .mic-st{font-size:12px;color:var(--sub);flex:1;}
+.dict-ab{display:none;flex-direction:column;gap:8px;padding:12px 16px;background:var(--gl);border-bottom:1px solid var(--bd);}
+.dict-ab-row{display:flex;align-items:center;gap:6px;}
+.dict-ab-row input{flex:1;border:1.5px solid var(--g);border-radius:8px;padding:8px 10px;font-size:14px;outline:none;font-family:inherit;min-width:0;}
+.dict-arrow{color:var(--sub);font-size:16px;flex-shrink:0;}
+.dict-ab-btns{display:flex;gap:8px;}
+.dict-entry{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;align-items:center;gap:8px;}
+.dict-from{font-size:13px;color:var(--sub);flex:1;word-break:break-all;}
+.dict-arr{font-size:13px;color:var(--bd);flex-shrink:0;}
+.dict-to{font-size:15px;font-weight:700;color:var(--tx);flex:1;word-break:break-all;}
+.dict-del{background:transparent;border:none;font-size:18px;cursor:pointer;padding:4px 6px;color:var(--sub);flex-shrink:0;}
+.dict-empty{text-align:center;color:var(--sub);margin-top:50px;font-size:14px;padding:16px;line-height:2;}
 </style>
 </head>
 <body>
@@ -170,6 +181,27 @@ textarea.f-in{resize:none;line-height:1.7;}
   <div class="lst" id="dayList"></div>
 </div>
 
+<!-- 画面5: マイ辞書 -->
+<div id="pg5" class="pg">
+  <div class="hd">
+    <button class="bk-btn" id="btnBack5">‹</button>
+    <span class="hd-ttl">マイ辞書</span>
+    <button class="hd-btn" id="btnDictAdd">＋</button>
+  </div>
+  <div id="dictAb" class="dict-ab">
+    <div class="dict-ab-row">
+      <input id="dictFrom" placeholder="よみ（例：ほこうりょうこう）" type="text">
+      <span class="dict-arrow">→</span>
+      <input id="dictTo" placeholder="変換後（例：歩行良好）" type="text">
+    </div>
+    <div class="dict-ab-btns">
+      <button class="btn-ok" id="btnDictOk">追加</button>
+      <button class="btn-no" id="btnDictNo">✕</button>
+    </div>
+  </div>
+  <div class="lst" id="dictList"></div>
+</div>
+
 <!-- 確認ダイアログ -->
 <div id="ov" class="ov">
   <div class="dlg">
@@ -202,6 +234,7 @@ textarea.f-in{resize:none;line-height:1.7;}
   <div class="dlg">
     <p>バックアップ</p>
     <div class="dlg-menu">
+      <button id="btnGoDict"><span class="ic">📖</span>マイ辞書を編集</button>
       <button id="btnExpJson"><span class="ic">📤</span>データをエクスポート</button>
       <button id="btnImpJson"><span class="ic">📥</span>データをインポート</button>
     </div>
@@ -245,6 +278,8 @@ function getPs() { try { return JSON.parse(lsGet('ps')||'[]'); } catch(e){ retur
 function setPs(v) { lsSet('ps', JSON.stringify(v)); }
 function getRs(id) { try { return JSON.parse(lsGet('rs_'+id)||'[]'); } catch(e){ return []; } }
 function setRs(id,v) { lsSet('rs_'+id, JSON.stringify(v)); }
+function getUserDict() { try { return JSON.parse(lsGet('userDict')||'[]'); } catch(e){ return []; } }
+function setUserDict(v) { lsSet('userDict', JSON.stringify(v)); }
 
 // ユーティリティ
 function g(id) { return document.getElementById(id); }
@@ -266,13 +301,14 @@ function toast(msg) {
 
 // 画面切替
 function go(n, opt) {
-  ['pg1','pg2','pg3','pg4'].forEach(function(id){ g(id).className='pg'; });
+  ['pg1','pg2','pg3','pg4','pg5'].forEach(function(id){ g(id).className='pg'; });
   g('pg'+n).className='pg on';
   window.scrollTo(0,0);
   if(n===1) drawPs();
   if(n===2) drawRs();
   if(n===3) initForm(opt);
   if(n===4) drawDay();
+  if(n===5) drawUserDict();
 }
 
 // 利用者一覧描画（50音順）
@@ -423,13 +459,51 @@ var medDict = {
   '評価価':'評価','説明明':'説明','確認認':'確認','調整整':'調整'
 };
 
-// 医療用語補正
+// 医療用語補正（マイ辞書を優先、次にmedDict）
 function correctTerms(txt) {
+  var ud = getUserDict().slice().sort(function(a,b){ return b.from.length - a.from.length; });
+  ud.forEach(function(e){
+    if (txt.indexOf(e.from) !== -1) txt = txt.split(e.from).join(e.to);
+  });
   var keys = Object.keys(medDict).sort(function(a,b){ return b.length - a.length; });
   keys.forEach(function(k){
     if (txt.indexOf(k) !== -1) txt = txt.split(k).join(medDict[k]);
   });
   return txt;
+}
+
+// マイ辞書描画
+function drawUserDict() {
+  var ud = getUserDict();
+  var el = g('dictList');
+  g('dictAb').style.display = 'none';
+  g('dictFrom').value = ''; g('dictTo').value = '';
+  el.innerHTML = '';
+  if (ud.length === 0) {
+    el.innerHTML = '<div class="dict-empty">＋ボタンで登録<br><br>例）<br>よみ：ほこうりょうこう<br>→ 変換後：歩行良好</div>';
+    return;
+  }
+  ud.forEach(function(e) {
+    var row = document.createElement('div'); row.className = 'dict-entry';
+    var from = document.createElement('span'); from.className = 'dict-from'; from.textContent = e.from;
+    var arr = document.createElement('span'); arr.className = 'dict-arr'; arr.textContent = '→';
+    var to = document.createElement('span'); to.className = 'dict-to'; to.textContent = e.to;
+    var del = document.createElement('button'); del.className = 'dict-del'; del.textContent = '🗑'; del.setAttribute('data-did', e.id);
+    row.appendChild(from); row.appendChild(arr); row.appendChild(to); row.appendChild(del);
+    el.appendChild(row);
+  });
+}
+
+// マイ辞書追加
+function addDictEntry() {
+  var from = g('dictFrom').value.trim();
+  var to = g('dictTo').value.trim();
+  if (!from || !to) { toast('よみと変換後を両方入力してください'); return; }
+  var ud = getUserDict();
+  ud.push({ id: ''+Date.now(), from: from, to: to });
+  setUserDict(ud);
+  drawUserDict();
+  toast('登録しました');
 }
 
 // 箇条書き→DAP構造（Data→Assessment→Plan）で解釈し、自然な一つの文章へ整形
@@ -752,14 +826,38 @@ g('dayCount').addEventListener('click', function(e){
   copyText(txt, '様子を一括コピーしました');
 });
 
+// イベント：マイ辞書
+g('btnBack5').addEventListener('click', function(){ go(1); });
+g('btnDictAdd').addEventListener('click', function(){
+  g('dictAb').style.display = 'flex';
+  setTimeout(function(){ g('dictFrom').focus(); }, 50);
+});
+g('btnDictOk').addEventListener('click', addDictEntry);
+g('btnDictNo').addEventListener('click', function(){
+  g('dictAb').style.display = 'none';
+  g('dictFrom').value = ''; g('dictTo').value = '';
+});
+g('dictFrom').addEventListener('keydown', function(e){ if(e.key==='Enter') g('dictTo').focus(); });
+g('dictTo').addEventListener('keydown', function(e){ if(e.key==='Enter') addDictEntry(); });
+g('dictList').addEventListener('click', function(e){
+  var db = e.target.closest('.dict-del');
+  if (!db) return;
+  var did = db.getAttribute('data-did');
+  showDlg('この辞書を削除しますか？', function(){
+    setUserDict(getUserDict().filter(function(e){ return e.id !== did; }));
+    drawUserDict();
+  });
+});
+
 // イベント：バックアップ
 g('btnSettings').addEventListener('click', function(){ g('ov3').className='ov on'; });
+g('btnGoDict').addEventListener('click', function(){ g('ov3').className='ov'; go(5); });
 g('btnMenuClose').addEventListener('click', function(){ g('ov3').className='ov'; });
 g('btnExpJson').addEventListener('click', function(){
   var ps = getPs();
   var rs = {};
   ps.forEach(function(p){ rs[p.id] = getRs(p.id); });
-  var data = { ps: ps, rs: rs, exportedAt: new Date().toISOString() };
+  var data = { ps: ps, rs: rs, userDict: getUserDict(), exportedAt: new Date().toISOString() };
   var json = JSON.stringify(data, null, 2);
   copyText(json, 'データをクリップボードにコピーしました');
   g('ov3').className='ov';
@@ -778,6 +876,7 @@ g('btnImpOk').addEventListener('click', function(){
     if(!data.ps || !data.rs) { toast('形式が正しくありません'); return; }
     setPs(data.ps);
     Object.keys(data.rs).forEach(function(id){ setRs(id, data.rs[id]); });
+    if(data.userDict) setUserDict(data.userDict);
     g('ov4').className='ov';
     drawPs();
     toast('データを取り込みました');
