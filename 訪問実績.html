@@ -68,6 +68,8 @@ textarea.f-in{resize:none;line-height:1.7;}
 .dlg-menu{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
 .dlg-menu button{display:flex;align-items:center;gap:12px;padding:14px;border-radius:10px;border:1.5px solid var(--bd);background:#fff;font-size:15px;font-weight:600;color:var(--tx);cursor:pointer;font-family:inherit;text-align:left;}
 .dlg-menu .ic{font-size:20px;}
+.dlg-menu .sep{height:1px;background:var(--bd);margin:2px 0;}
+.dlg-menu .sec-lbl{font-size:11px;font-weight:700;color:var(--sub);padding:4px 0 0;letter-spacing:.05em;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;white-space:nowrap;display:none;}
 .day-pick{padding:12px 16px;background:#fff;border-bottom:2px solid var(--g);display:flex;align-items:center;gap:10px;}
 .day-pick input[type=date]{flex:1;border:1.5px solid var(--g);border-radius:10px;padding:9px 12px;font-size:16px;outline:none;font-family:inherit;color:var(--tx);background:#fff;}
@@ -101,6 +103,9 @@ textarea.f-in{resize:none;line-height:1.7;}
 .dict-to{font-size:15px;font-weight:700;color:var(--tx);flex:1;word-break:break-all;}
 .dict-del{background:transparent;border:none;font-size:18px;cursor:pointer;padding:4px 6px;color:var(--sub);flex-shrink:0;}
 .dict-empty{text-align:center;color:var(--sub);margin-top:50px;font-size:14px;padding:16px;line-height:2;}
+.dict-bar{display:flex;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--bd);}
+.btn-dict-io{flex:1;background:var(--gl);border:1.5px solid var(--g);color:var(--g);border-radius:8px;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-dict-imp{flex:1;background:var(--bll);border:1.5px solid var(--bl);color:var(--bl);border-radius:8px;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
 </style>
 </head>
 <body>
@@ -188,6 +193,11 @@ textarea.f-in{resize:none;line-height:1.7;}
     <span class="hd-ttl">マイ辞書</span>
     <button class="hd-btn" id="btnDictAdd">＋</button>
   </div>
+  <!-- 辞書専用バックアップバー -->
+  <div class="dict-bar">
+    <button class="btn-dict-io" id="btnDictExpFile">📤 エクスポート</button>
+    <button class="btn-dict-imp" id="btnDictImpFile">📥 インポート</button>
+  </div>
   <div id="dictAb" class="dict-ab">
     <div class="dict-ab-row">
       <input id="dictFrom" placeholder="よみ（例：ほこうりょうこう）" type="text">
@@ -234,9 +244,14 @@ textarea.f-in{resize:none;line-height:1.7;}
   <div class="dlg">
     <p>バックアップ</p>
     <div class="dlg-menu">
-      <button id="btnGoDict"><span class="ic">📖</span>マイ辞書を編集</button>
-      <button id="btnExpJson"><span class="ic">📤</span>データをエクスポート</button>
-      <button id="btnImpJson"><span class="ic">📥</span>データをインポート</button>
+      <div class="sec-lbl">📖 マイ辞書</div>
+      <button id="btnGoDict"><span class="ic">✏️</span>マイ辞書を編集</button>
+      <button id="btnExpDictMenu"><span class="ic">📤</span>辞書をファイル保存</button>
+      <button id="btnImpDictMenu"><span class="ic">📥</span>辞書をファイルから復元</button>
+      <div class="sep"></div>
+      <div class="sec-lbl">💾 全データ</div>
+      <button id="btnExpJson"><span class="ic">📦</span>全データをファイル保存</button>
+      <button id="btnImpJson"><span class="ic">📂</span>全データをファイルから復元</button>
     </div>
     <div class="dlg-bts">
       <button class="btn-dl-no" id="btnMenuClose" style="flex:1;">閉じる</button>
@@ -244,17 +259,10 @@ textarea.f-in{resize:none;line-height:1.7;}
   </div>
 </div>
 
-<!-- インポートダイアログ -->
-<div id="ov4" class="ov">
-  <div class="dlg">
-    <p>JSONデータを貼り付け</p>
-    <textarea id="impText" class="f-in" rows="6" style="margin-bottom:16px;" placeholder='{"ps":[...],"rs":{...}}'></textarea>
-    <div class="dlg-bts">
-      <button class="btn-dl-no" id="btnImpNo">キャンセル</button>
-      <button class="btn-dl-ok" id="btnImpOk" style="background:var(--g);">取り込む</button>
-    </div>
-  </div>
-</div>
+<!-- 非表示ファイル入力（辞書インポート用） -->
+<input type="file" id="fileDictImp" accept=".json" style="display:none">
+<!-- 非表示ファイル入力（全データインポート用） -->
+<input type="file" id="fileAllImp" accept=".json" style="display:none">
 
 <div class="toast" id="toast"></div>
 
@@ -297,6 +305,78 @@ function mKey(s) { var d=new Date(s); return d.getFullYear()+'-'+('0'+(d.getMont
 function toast(msg) {
   var t=g('toast'); t.textContent=msg; t.style.display='block';
   setTimeout(function(){ t.style.display='none'; }, 2500);
+}
+
+// ─── ファイルダウンロード（iOS Safari対応）───
+function downloadJson(filename, obj) {
+  var json = JSON.stringify(obj, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+}
+
+// ─── 辞書エクスポート（ファイル）───
+function exportDictFile() {
+  var ud = getUserDict();
+  if (ud.length === 0) { toast('辞書が空です'); return; }
+  var date = today();
+  downloadJson('mydict_' + date + '.json', { userDict: ud, exportedAt: new Date().toISOString() });
+  toast('辞書をダウンロードしました（' + ud.length + '件）');
+}
+
+// ─── 辞書インポート（ファイル）───
+function importDictFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      var ud = null;
+      // 辞書専用JSONの場合
+      if (Array.isArray(data.userDict)) { ud = data.userDict; }
+      // 全データJSONからの辞書取得も許可
+      else if (Array.isArray(data)) { ud = data; }
+      if (!ud || ud.length === 0) { toast('辞書データが見つかりません'); return; }
+      // idがなければ自動付与
+      ud = ud.map(function(e){ return { id: e.id || ''+Date.now()+Math.random(), from: e.from, to: e.to }; });
+      setUserDict(ud);
+      drawUserDict();
+      toast('辞書を復元しました（' + ud.length + '件）');
+    } catch(e) { toast('ファイルの読み込みに失敗しました'); }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ─── 全データエクスポート（ファイル）───
+function exportAllFile() {
+  var ps = getPs();
+  var rs = {};
+  ps.forEach(function(p){ rs[p.id] = getRs(p.id); });
+  var data = { ps: ps, rs: rs, userDict: getUserDict(), exportedAt: new Date().toISOString() };
+  var date = today();
+  downloadJson('rehab_backup_' + date + '.json', data);
+  toast('全データをダウンロードしました');
+}
+
+// ─── 全データインポート（ファイル）───
+function importAllFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.ps || !data.rs) { toast('形式が正しくありません'); return; }
+      setPs(data.ps);
+      Object.keys(data.rs).forEach(function(id){ setRs(id, data.rs[id]); });
+      if (data.userDict) setUserDict(data.userDict);
+      drawPs();
+      toast('全データを復元しました');
+    } catch(e) { toast('ファイルの読み込みに失敗しました'); }
+  };
+  reader.readAsText(file, 'UTF-8');
 }
 
 // 画面切替
@@ -378,7 +458,7 @@ function drawRs() {
   });
 }
 
-// フォーム初期化（編集時はレコードを渡す）
+// フォーム初期化
 function initForm(r) {
   if(_micListening && _micRec) { try { _micRec.stop(); } catch(e){} }
   if(r) {
@@ -401,13 +481,11 @@ function initForm(r) {
   }
 }
 
-// 医療用語辞書：ひらがな・誤字を正しい表記へ補正
+// 医療用語辞書
 var medDict = {
-  // バイタル
   'けつあつ':'血圧','けっあつ':'血圧','みゃくはく':'脈拍','たいおん':'体温',
   'ばいたる':'バイタル','こきゅう':'呼吸','さんそほうわど':'酸素飽和度',
   'けっとう':'血糖','たいじゅう':'体重','こうけつあつ':'高血圧','ていけつあつ':'低血圧',
-  // リハビリ・動作
   'りはびり':'リハビリ','くんれん':'訓練','ほこう':'歩行','きりつ':'起立',
   'どうさ':'動作','ねがえり':'寝返り','ざいい':'座位','りつい':'立位',
   'おきあがり':'起き上がり','いどう':'移動','いじょうどうさ':'移乗動作',
@@ -417,7 +495,6 @@ var medDict = {
   'きんりょくくんれん':'筋力訓練','ばらんすくんれん':'バランス訓練',
   'きのうくんれん':'機能訓練','かんせつかどいき':'関節可動域',
   'にちじょうせいかつどうさ':'日常生活動作','いどうのうりょく':'移動能力',
-  // 疾患・障害
   'へんまひ':'片麻痺','りょうまひ':'両麻痺',
   'のうこうそく':'脳梗塞','のうしゅっけつ':'脳出血',
   'にんちしょう':'認知症','にんちきのう':'認知機能',
@@ -425,44 +502,35 @@ var medDict = {
   'へんけいせいかんせつしょう':'変形性関節症',
   'のうけっかんしっかん':'脳血管疾患',
   'しんふぜん':'心不全','とうにょうびょう':'糖尿病',
-  // 評価語
   'あんてい':'安定','ふあんてい':'不安定','りょうこう':'良好','ふりょう':'不良',
   'かいぜん':'改善','あっか':'悪化','じゅんちょう':'順調','ていか':'低下','じょうしょう':'上昇',
   'じりつど':'自立度','かいじょりょう':'介助量',
-  // 介入語
   'じっし':'実施','しこう':'施行','けいぞく':'継続','さいかい':'再開','ちゅうし':'中止',
   'しどう':'指導','せつめい':'説明','かくにん':'確認','かんさつ':'観察',
   'ちょうせい':'調整','へんこう':'変更','よてい':'予定','かいじょ':'介助','じりつ':'自立',
   'たいおう':'対応','そうだん':'相談','ほうこく':'報告','れんらく':'連絡',
-  // 症状
   'とうつう':'疼痛','いたみ':'疼痛','ずつう':'頭痛','づつう':'頭痛',
   'はつねつ':'発熱','びねつ':'微熱',
   'ふしゅ':'浮腫','むくみ':'浮腫','はっかん':'発汗','はきけ':'嘔気','おうと':'嘔吐',
   'げり':'下痢','べんぴ':'便秘','ひろう':'疲労','けんたいかん':'倦怠感',
   'しょくよく':'食欲','すいみん':'睡眠','いしき':'意識','ふらつき':'ふらつき',
-  // ADL
   'ふくやく':'服薬','しょくじ':'食事','にゅうよく':'入浴','はいせつ':'排泄',
   'えんげ':'嚥下','ごえん':'誤嚥',
   'はいにょう':'排尿','はいべん':'排便','にょうしっきん':'尿失禁',
   'きがえ':'更衣','こうくうけあ':'口腔ケア',
-  // 体の部位
   'たいかん':'体幹',
   'けんかんせつ':'肩関節','ひざかんせつ':'膝関節','こかんせつ':'股関節',
   'あしかんせつ':'足関節','ひじかんせつ':'肘関節',
   'けいぶ':'頸部','きょうぶ':'胸部','ふくぶ':'腹部','ようぶ':'腰部',
-  // スタッフ・関係者
   'りがくりょうほうし':'理学療法士','さぎょうりょうほうし':'作業療法士',
   'げんごちょうかくし':'言語聴覚士',
   'けあまねーじゃー':'ケアマネージャー','けあまね':'ケアマネ',
-  // 重複タイプミス（音声入力・変換ミス特有）
   '疲労労':'疲労','血圧圧':'血圧','安定定':'安定','改善善':'改善','実施施':'実施',
   '訓練練':'訓練','観察察':'観察','継続続':'継続','指導導':'指導',
   '評価価':'評価','説明明':'説明','確認認':'確認','調整整':'調整'
 };
 
-// 医療用語補正（マイ辞書を優先、次にmedDict）
 function correctTerms(txt) {
-  // 全角数字・英字を半角に変換
   txt = txt.replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); })
            .replace(/[ａ-ｚＡ-Ｚ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); });
   var ud = getUserDict().slice().sort(function(a,b){ return b.from.length - a.from.length; });
@@ -510,7 +578,7 @@ function addDictEntry() {
   toast('登録しました');
 }
 
-// 箇条書き→DAP構造（Data→Assessment→Plan）で解釈し、自然な一つの文章へ整形
+// DAP整形
 function formatMemo(txt) {
   if (!txt) return '';
   txt = correctTerms(txt);
@@ -520,9 +588,7 @@ function formatMemo(txt) {
   var hasMarkers = nonEmpty.some(function(l){
     return /^[・\-\*•◯○●＊]/.test(l) || /^[0-9０-９]+[\.\)）]/.test(l);
   });
-  // 1行のみ＆マーカーなし → そのまま返す（既に整形済みとみなす）
   if (nonEmpty.length === 1 && !hasMarkers) return nonEmpty[0];
-  // 各行をクリーンアップ
   var items = nonEmpty.map(function(line) {
     line = line.replace(/^[・\-\*•◯○●＊]+[\s　]*/, '');
     line = line.replace(/^[0-9０-９]+[\.\)）][\s　]*/, '');
@@ -531,8 +597,6 @@ function formatMemo(txt) {
     return line;
   }).filter(function(l){ return l; });
   if (items.length === 0) return '';
-
-  // DAP分類：Plan（介入・計画）→ Assessment（評価・判断）→ それ以外Data（観察事実）
   function classify(item) {
     if (/(実施|施行|予定|継続|指導|依頼|説明|勧め|推奨|検討|介入|提案|指示|フォロー|確認|観察|調整|変更|中止|開始|再開)$/.test(item)) return 'P';
     if (/(良好|不良|安定|不安定|改善|悪化|増悪|維持|傾向|効果|順調|低下|上昇|回復|軽減|増強|進行|見られる|見られず|認められる|認められず|認める|認めず)$/.test(item)) return 'A';
@@ -545,61 +609,44 @@ function formatMemo(txt) {
     else if (c === 'A') A.push(item);
     else P.push(item);
   });
-  // 「予定」はP内で末尾へ（文章の締めくくりに自然）
   var P_sorted = P.filter(function(i){ return !/予定$/.test(i); })
                   .concat(P.filter(function(i){ return /予定$/.test(i); }));
   var ordered = D.concat(A).concat(P_sorted);
-
-  // 末尾語に応じた自然な接続形（助詞 は/を を自動挿入）
   function naturalize(item, isLast) {
-    // 既に助詞を含む場合は自然な表現とみなして変換しない
     if (/[はをがにで]/.test(item)) return item;
-
     var m;
-    // なし：観察事実の否定
-    if ((m = item.match(/^(.+?)なし$/))) {
-      return m[1] + (isLast ? 'は認めず' : 'なく');
-    }
-    // あり：観察事実の肯定
-    if ((m = item.match(/^(.+?)あり$/))) {
-      return m[1] + 'あり';
-    }
-    // 訴え
-    if ((m = item.match(/^(.+?)訴え$/))) {
-      return m[1] + (isLast ? 'の訴えあり' : 'の訴えがあり');
-    }
-
+    if ((m = item.match(/^(.+?)なし$/))) return m[1] + (isLast ? 'は認めず' : 'なく');
+    if ((m = item.match(/^(.+?)あり$/))) return m[1] + 'あり';
+    if ((m = item.match(/^(.+?)訴え$/))) return m[1] + (isLast ? 'の訴えあり' : 'の訴えがあり');
     var patterns = [
-      // Plan: 名詞 + を + 動詞
-      { re:/^(.+?)実施$/, mid:'を実施し',     end:'を実施した' },
-      { re:/^(.+?)施行$/, mid:'を施行し',     end:'を施行した' },
-      { re:/^(.+?)確認$/, mid:'を確認し',     end:'を確認した' },
-      { re:/^(.+?)観察$/, mid:'を観察し',     end:'を観察した' },
-      { re:/^(.+?)調整$/, mid:'を調整し',     end:'を調整した' },
-      { re:/^(.+?)開始$/, mid:'を開始し',     end:'を開始した' },
-      { re:/^(.+?)再開$/, mid:'を再開し',     end:'を再開した' },
-      { re:/^(.+?)中止$/, mid:'を中止し',     end:'を中止した' },
-      { re:/^(.+?)変更$/, mid:'を変更し',     end:'を変更した' },
-      { re:/^(.+?)継続$/, mid:'を継続し',     end:'を継続中'  },
-      { re:/^(.+?)指導$/, mid:'指導を実施し',  end:'指導を実施した' },
+      { re:/^(.+?)実施$/, mid:'を実施し', end:'を実施した' },
+      { re:/^(.+?)施行$/, mid:'を施行し', end:'を施行した' },
+      { re:/^(.+?)確認$/, mid:'を確認し', end:'を確認した' },
+      { re:/^(.+?)観察$/, mid:'を観察し', end:'を観察した' },
+      { re:/^(.+?)調整$/, mid:'を調整し', end:'を調整した' },
+      { re:/^(.+?)開始$/, mid:'を開始し', end:'を開始した' },
+      { re:/^(.+?)再開$/, mid:'を再開し', end:'を再開した' },
+      { re:/^(.+?)中止$/, mid:'を中止し', end:'を中止した' },
+      { re:/^(.+?)変更$/, mid:'を変更し', end:'を変更した' },
+      { re:/^(.+?)継続$/, mid:'を継続し', end:'を継続中' },
+      { re:/^(.+?)指導$/, mid:'指導を実施し', end:'指導を実施した' },
       { re:/^(.+?)説明$/, mid:'について説明し', end:'について説明した' },
-      { re:/^(.+?)予定$/, mid:'予定であり',    end:'予定' },
-      // Assessment: 名詞 + は + 状態
-      { re:/^(.+?)良好$/,   mid:'は良好で',          end:'は良好' },
-      { re:/^(.+?)不良$/,   mid:'は不良で',          end:'は不良' },
-      { re:/^(.+?)順調$/,   mid:'は順調で',          end:'は順調' },
-      { re:/^(.+?)不安定$/, mid:'は不安定で',        end:'は不安定' },
-      { re:/^(.+?)安定$/,   mid:'は安定しており',    end:'は安定している' },
-      { re:/^(.+?)改善$/,   mid:'は改善しており',    end:'は改善している' },
-      { re:/^(.+?)悪化$/,   mid:'は悪化しており',    end:'は悪化している' },
-      { re:/^(.+?)増悪$/,   mid:'は増悪しており',    end:'は増悪している' },
-      { re:/^(.+?)維持$/,   mid:'は維持されており',  end:'は維持されている' },
-      { re:/^(.+?)低下$/,   mid:'は低下しており',    end:'は低下している' },
-      { re:/^(.+?)上昇$/,   mid:'は上昇しており',    end:'は上昇している' },
-      { re:/^(.+?)軽減$/,   mid:'は軽減しており',    end:'は軽減している' },
-      { re:/^(.+?)増強$/,   mid:'は増強しており',    end:'は増強している' },
-      { re:/^(.+?)回復$/,   mid:'は回復しており',    end:'は回復している' },
-      { re:/^(.+?)進行$/,   mid:'は進行しており',    end:'は進行している' }
+      { re:/^(.+?)予定$/, mid:'予定であり', end:'予定' },
+      { re:/^(.+?)良好$/, mid:'は良好で', end:'は良好' },
+      { re:/^(.+?)不良$/, mid:'は不良で', end:'は不良' },
+      { re:/^(.+?)順調$/, mid:'は順調で', end:'は順調' },
+      { re:/^(.+?)不安定$/, mid:'は不安定で', end:'は不安定' },
+      { re:/^(.+?)安定$/, mid:'は安定しており', end:'は安定している' },
+      { re:/^(.+?)改善$/, mid:'は改善しており', end:'は改善している' },
+      { re:/^(.+?)悪化$/, mid:'は悪化しており', end:'は悪化している' },
+      { re:/^(.+?)増悪$/, mid:'は増悪しており', end:'は増悪している' },
+      { re:/^(.+?)維持$/, mid:'は維持されており', end:'は維持されている' },
+      { re:/^(.+?)低下$/, mid:'は低下しており', end:'は低下している' },
+      { re:/^(.+?)上昇$/, mid:'は上昇しており', end:'は上昇している' },
+      { re:/^(.+?)軽減$/, mid:'は軽減しており', end:'は軽減している' },
+      { re:/^(.+?)増強$/, mid:'は増強しており', end:'は増強している' },
+      { re:/^(.+?)回復$/, mid:'は回復しており', end:'は回復している' },
+      { re:/^(.+?)進行$/, mid:'は進行しており', end:'は進行している' }
     ];
     for (var i = 0; i < patterns.length; i++) {
       var p = patterns[i];
@@ -672,7 +719,6 @@ function drawDay() {
       if(r.d === dt) found.push({p:p, r:r});
     });
   });
-  // 作成時間順（r.id＝Date.now()）で昇順ソート：最初に訪問した人が上
   found.sort(function(a,b){ return (a.r.id||'').localeCompare(b.r.id||''); });
   dayFound = found;
   if(found.length === 0) {
@@ -703,7 +749,7 @@ function drawDay() {
   });
 }
 
-// クリップボードコピー（file://対応）
+// クリップボードコピー
 function copyText(txt, okMsg) {
   if(navigator.clipboard && location.protocol !== 'file:'){
     navigator.clipboard.writeText(txt).then(function(){ toast(okMsg); });
@@ -717,14 +763,15 @@ function copyText(txt, okMsg) {
   }
 }
 
-// イベント：利用者一覧
+// ─── イベント登録 ───
+
+// 利用者一覧
 g('btnShowAb').addEventListener('click', function(){ g('ab').style.display='flex'; setTimeout(function(){ g('newName').focus(); }, 50); });
 g('btnAddOk').addEventListener('click', addP);
 g('btnAddNo').addEventListener('click', function(){ g('ab').style.display='none'; g('newName').value=''; });
 g('newName').addEventListener('keydown', function(e){ if(e.key==='Enter') addP(); });
 g('srch').addEventListener('input', function(){ drawPs(); });
 
-// 利用者リストのクリック（イベント委譲）
 g('pList').addEventListener('click', function(e){
   var pb=e.target.closest('.p-btn');
   var db=e.target.closest('.d-btn');
@@ -746,7 +793,7 @@ g('pList').addEventListener('click', function(e){
 
 // 報告書用エクスポート
 function doExport() {
-  var month = g('mSel').value; // YYYY-MM
+  var month = g('mSel').value;
   if(!month) { toast('月を選択してください'); return; }
   var rs = getRs(curP.id);
   var recs = rs.filter(function(r){ return mKey(r.d) === month; })
@@ -764,7 +811,7 @@ function doExport() {
   copyText(txt, '報告書用テキストをコピーしました');
 }
 
-// イベント：記録一覧
+// 記録一覧
 g('btnBack1').addEventListener('click', function(){ go(1); });
 g('btnGoAdd').addEventListener('click', function(){ go(3); });
 g('btnExport').addEventListener('click', doExport);
@@ -773,13 +820,9 @@ g('btnBulkDel').addEventListener('click', function(){
   g('ov2').className='ov on';
 });
 
-// 記録リストのクリック（イベント委譲）
 g('rList').addEventListener('click', function(e){
   var cp=e.target.closest('.r-cp');
-  if(cp){
-    copyText(cp.getAttribute('data-cp'), '様子をコピーしました');
-    return;
-  }
+  if(cp){ copyText(cp.getAttribute('data-cp'), '様子をコピーしました'); return; }
   var eb=e.target.closest('.r-edit');
   var db=e.target.closest('.r-del');
   if(eb){
@@ -797,23 +840,20 @@ g('rList').addEventListener('click', function(e){
   }
 });
 
-// イベント：記録追加／編集
+// 記録追加／編集
 g('btnBack2').addEventListener('click', function(){ editId=null; go(2); });
 g('btnSave').addEventListener('click', saveR);
 
-// イベント：ダイアログ
+// ダイアログ
 g('btnDlNo').addEventListener('click', closeDlg);
 g('btnDlOk').addEventListener('click', function(){ if(dlgCb) dlgCb(); closeDlg(); });
 
-// イベント：期間削除ダイアログ
+// 期間削除ダイアログ
 g('btnRngNo').addEventListener('click', function(){ g('ov2').className='ov'; });
 g('btnRngOk').addEventListener('click', doBulkDelete);
 
-// イベント：日別実施一覧
-g('btnGoDay').addEventListener('click', function(){
-  g('dayDate').value = today();
-  go(4);
-});
+// 日別実施一覧
+g('btnGoDay').addEventListener('click', function(){ g('dayDate').value = today(); go(4); });
 g('btnBack4').addEventListener('click', function(){ go(1); });
 g('btnDayToday').addEventListener('click', function(){ g('dayDate').value=today(); drawDay(); });
 g('dayDate').addEventListener('change', function(){ drawDay(); });
@@ -830,7 +870,7 @@ g('dayCount').addEventListener('click', function(e){
   copyText(txt, '様子を一括コピーしました');
 });
 
-// イベント：マイ辞書
+// マイ辞書
 g('btnBack5').addEventListener('click', function(){ go(1); });
 g('btnDictAdd').addEventListener('click', function(){
   g('dictAb').style.display = 'flex';
@@ -853,52 +893,58 @@ g('dictList').addEventListener('click', function(e){
   });
 });
 
-// イベント：バックアップ
+// 辞書画面バックアップバー
+g('btnDictExpFile').addEventListener('click', exportDictFile);
+g('btnDictImpFile').addEventListener('click', function(){ g('fileDictImp').value=''; g('fileDictImp').click(); });
+
+// バックアップメニュー
 g('btnSettings').addEventListener('click', function(){ g('ov3').className='ov on'; });
 g('btnGoDict').addEventListener('click', function(){ g('ov3').className='ov'; go(5); });
 g('btnMenuClose').addEventListener('click', function(){ g('ov3').className='ov'; });
-g('btnExpJson').addEventListener('click', function(){
-  var ps = getPs();
-  var rs = {};
-  ps.forEach(function(p){ rs[p.id] = getRs(p.id); });
-  var data = { ps: ps, rs: rs, userDict: getUserDict(), exportedAt: new Date().toISOString() };
-  var json = JSON.stringify(data, null, 2);
-  copyText(json, 'データをクリップボードにコピーしました');
+
+// メニューから辞書エクスポート
+g('btnExpDictMenu').addEventListener('click', function(){
   g('ov3').className='ov';
+  exportDictFile();
 });
+// メニューから辞書インポート
+g('btnImpDictMenu').addEventListener('click', function(){
+  g('ov3').className='ov';
+  g('fileDictImp').value='';
+  g('fileDictImp').click();
+});
+// メニューから全データエクスポート
+g('btnExpJson').addEventListener('click', function(){
+  g('ov3').className='ov';
+  exportAllFile();
+});
+// メニューから全データインポート
 g('btnImpJson').addEventListener('click', function(){
   g('ov3').className='ov';
-  g('impText').value='';
-  g('ov4').className='ov on';
+  g('fileAllImp').value='';
+  g('fileAllImp').click();
 });
-g('btnImpNo').addEventListener('click', function(){ g('ov4').className='ov'; });
-g('btnImpOk').addEventListener('click', function(){
-  var txt = g('impText').value.trim();
-  if(!txt) { toast('データを貼り付けてください'); return; }
-  try {
-    var data = JSON.parse(txt);
-    if(!data.ps || !data.rs) { toast('形式が正しくありません'); return; }
-    setPs(data.ps);
-    Object.keys(data.rs).forEach(function(id){ setRs(id, data.rs[id]); });
-    if(data.userDict) setUserDict(data.userDict);
-    g('ov4').className='ov';
-    drawPs();
-    toast('データを取り込みました');
-  } catch(e) { toast('JSONの解析に失敗しました'); }
+
+// ファイル選択イベント
+g('fileDictImp').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if (file) importDictFile(file);
+});
+g('fileAllImp').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if (file) importAllFile(file);
 });
 
 // カレンダーボタンに当日の日にちを表示
 g('btnGoDay').textContent = new Date().getDate();
 
-// 音声入力（Web Speech API / iOS キーボードマイク対応）
+// 音声入力
 function initSpeech() {
   var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   var micBtn = g('micBtn');
   var micSt = g('micStatus');
   var micDot = g('micDot');
   var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-  // iOS：Web Speech API非対応のためキーボードマイクへ誘導＋blur時自動変換
   if (isIOS) {
     micBtn.addEventListener('click', function() {
       g('iMemo').focus();
@@ -911,22 +957,17 @@ function initSpeech() {
     });
     return;
   }
-
-  // Web Speech API非対応ブラウザ
   if (!SpeechRec) { micBtn.style.display = 'none'; return; }
-
   var rec = new SpeechRec();
   rec.lang = 'ja-JP';
   rec.continuous = true;
   rec.interimResults = true;
   _micRec = rec;
-
   micBtn.addEventListener('click', function() {
     if (_micListening) { rec.stop(); return; }
     _micFinal = g('iMemo').value ? g('iMemo').value + '\n' : '';
     try { rec.start(); } catch(e) { toast('マイクを起動できません'); }
   });
-
   rec.onstart = function() {
     _micListening = true;
     micDot.style.display = 'inline-block';
@@ -934,7 +975,6 @@ function initSpeech() {
     micBtn.childNodes[micBtn.childNodes.length-1].textContent = ' 停止';
     micSt.textContent = '認識中…';
   };
-
   rec.onresult = function(e) {
     var interim = '';
     for (var i = e.resultIndex; i < e.results.length; i++) {
@@ -945,7 +985,6 @@ function initSpeech() {
     g('iMemo').value = _micFinal + interim;
     g('iMemo').scrollTop = g('iMemo').scrollHeight;
   };
-
   rec.onend = function() {
     _micListening = false;
     micDot.style.display = 'none';
@@ -954,7 +993,6 @@ function initSpeech() {
     micSt.textContent = '';
     g('iMemo').value = correctTerms(g('iMemo').value);
   };
-
   rec.onerror = function(e) {
     _micListening = false;
     micDot.style.display = 'none';
@@ -966,7 +1004,6 @@ function initSpeech() {
 }
 initSpeech();
 
-// 初期表示
 drawPs();
 </script>
 </body>
